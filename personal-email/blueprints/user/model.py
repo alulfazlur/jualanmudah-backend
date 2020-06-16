@@ -7,40 +7,45 @@ from sqlalchemy.orm import relationship
 class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    first_name = db.Column(db.String(30), unique=True, nullable=False)
-    last_name = db.Column(db.String(30), unique=True, nullable=False)
+    full_name = db.Column(db.String(30), unique=True, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False, default=20)
     salt = db.Column(db.String(255))
-    internal = db.Column(db.Boolean, default=False, nullable=True)
-    email = db.Column(db.String(30), unique=True, nullable=False) 
-    post = db.relationship('Post', backref='user', lazy=True)
-    follow = db.relationship('Follow', backref='user', lazy=True)
+    status = db.Column(db.Boolean, default=False, nullable=True)
+    address = db.Column(db.String(255), unique=True, nullable=False) 
+    position = db.Column(db.String(50), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True),
+                           server_default=db.func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
 
     response_fields = {
         'id': fields.Integer,
-        'first_name': fields.String,
-        'last_name': fields.String,
+        'full_name': fields.String,
         'username': fields.String,
         'password': fields.String,
-        'email': fields.String,
-        'internal': fields.Boolean,
+        'address': fields.String,
+        'status': fields.Boolean,
+        'address': fields.String,
+        'position': fields.String,
+        'created_at': fields.DateTime,
+        'updated_at': fields.DateTime,
       
     }
     jwt_claim_fields = {
         'id': fields.Integer,
         'username': fields.String,
-        'internal': fields.Boolean
+        'status': fields.Boolean
     }
-    def __init__(self, first_name,last_name, username,password,salt, email,internal):
+    def __init__(self, full_name, username,password,salt, address,status,address,position):
         
-        self.first_name = first_name
-        self.last_name = last_name
+        self.full_name = full_name
         self.username = username
         self.password = password
         self.salt = salt
-        self.email = email
-        self.internal = internal
+        self.address = address
+        self.status = status
+        self.address = address
+        self.position = position
         
 
     def __repr__(self):

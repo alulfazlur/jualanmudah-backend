@@ -32,20 +32,20 @@ class UserResource(Resource):
     def post(self):
         
         parser = reqparse.RequestParser()
-        parser.add_argument('first_name', location='json', required=True)
-        parser.add_argument('last_name', location='json', required=True)
+        parser.add_argument('full_name', location='json', required=True)
         parser.add_argument('username', location='json', required=True)
         parser.add_argument('password', location='json',
                             required=True)
-        parser.add_argument('email', location='json', required=True)
-        parser.add_argument('internal',type=bool, location='json')
+        parser.add_argument('status',type=bool, location='json')
+        parser.add_argument('address', location='json', required=True)
+        parser.add_argument('position', location='json', required=True)
         args = parser.parse_args()
 
         salt = uuid.uuid4().hex
         hash_pass = hashlib.sha512(
             ('%s%s' % (args['password'], salt)).encode('utf-8')).hexdigest()
-        user = User(args['first_name'],args['last_name'],
-                    args['username'], hash_pass, salt, args['email'], args['internal'])
+        user = User(args['full_name'],
+                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'])
 
         db.session.add(user)
         db.session.commit()
@@ -61,21 +61,20 @@ class UserResource(Resource):
             return {'status': 'NOT_FOUND'}, 404
         else:
             parser = reqparse.RequestParser()
-            parser.add_argument('first_name', location='json', required=True)
-            parser.add_argument('last_name', location='json', required=True)
+            parser.add_argument('full_name', location='json', required=True)
             parser.add_argument('username', location='json',
                                 type=int, required=True)
             parser.add_argument('password', location='json',
-                                required=True, choices=('male', 'female'))
-            parser.add_argument('email', location='json', required=True)
+                                required=True)
+            parser.add_argument('address', location='json', required=True)
+             parser.add_argument('position', location='json', required=True)
             args = parser.parse_args()
 
-            qry.first_name = args['first_name']
-            qry.first_name = args['last_name']
+            qry.full_name = args['full_name']
             qry.username = args['username']
             qry.password = args['password']
             qry.address = args['address']
-            qry.email = args['email']
+            qry.status = args['position']
             
             db.session.commit()
 
@@ -93,43 +92,43 @@ class UserResource(Resource):
         return {}, 200
 
 
-class UserList(Resource):
-    def __init__(self):
-        pass
+# class UserList(Resource):
+#     def __init__(self):
+#         pass
 
-    # @internal_required
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-        parser.add_argument('sex', location='args',
-                            help='invalid status', choices=('male', 'female'))
-        parser.add_argument('orderby', location='args',
-                            help='invalid order by value', choices=('age', 'sex'))
-        parser.add_argument('sort', location='args',
-                            help='invalid sort value', choices=('desc', 'asc'))
+#     # @internal_required
+#     def get(self):
+#         parser = reqparse.RequestParser()
+#         parser.add_argument('p', type=int, location='args', default=1)
+#         parser.add_argument('rp', type=int, location='args', default=25)
+#         parser.add_argument('sex', location='args',
+#                             help='invalid status', choices=('male', 'female'))
+#         parser.add_argument('orderby', location='args',
+#                             help='invalid order by value', choices=('age', 'sex'))
+#         parser.add_argument('sort', location='args',
+#                             help='invalid sort value', choices=('desc', 'asc'))
 
-        args = parser.parse_args()
-        offset = (args['p'] * args['rp']) - args['rp']
-        qry = User.query
-        if args['sex'] is not None:
-            qry = qry.filter_by(sex=args['sex'])
+#         args = parser.parse_args()
+#         offset = (args['p'] * args['rp']) - args['rp']
+#         qry = User.query
+#         if args['sex'] is not None:
+#             qry = qry.filter_by(sex=args['sex'])
 
-        if args['orderby'] is not None:
-            if args['orderby'] == 'age':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(User.age))
-                else:
-                    qry = qry.order_by(User.age)
-            elif args['orderby'] == 'sex':
-                if args['sort'] == 'desc':
-                    qry = qry.order_by(desc(User.sex))
-                else:
-                    qry = qry.order_by(User.sex)
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            rows.append(marshal(row, User.response_fields))
-        return rows, 200
+#         if args['orderby'] is not None:
+#             if args['orderby'] == 'age':
+#                 if args['sort'] == 'desc':
+#                     qry = qry.order_by(desc(User.age))
+#                 else:
+#                     qry = qry.order_by(User.age)
+#             elif args['orderby'] == 'sex':
+#                 if args['sort'] == 'desc':
+#                     qry = qry.order_by(desc(User.sex))
+#                 else:
+#                     qry = qry.order_by(User.sex)
+#         rows = []
+#         for row in qry.limit(args['rp']).offset(offset).all():
+#             rows.append(marshal(row, User.response_fields))
+#         return rows, 200
 
 
 api.add_resource(UserList, '', '/list')
