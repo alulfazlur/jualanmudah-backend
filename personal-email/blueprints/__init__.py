@@ -78,31 +78,17 @@ def after_request(response):
 from blueprints.auth import bp_auth
 app.register_blueprint(bp_auth, url_prefix='/auth')
 
-from blueprints.client.resources import bp_client
-app.register_blueprint(bp_client, url_prefix='/client')
-
-from blueprints.category.resources import bp_category
-app.register_blueprint(bp_category, url_prefix='/category')
-
-from blueprints.payment.resources import bp_payment
-app.register_blueprint(bp_payment, url_prefix='/payment')
-
-from blueprints.product.resources import bp_product
-app.register_blueprint(bp_product, url_prefix='/product')
-
-from blueprints.receipt.resources import bp_receipt
-app.register_blueprint(bp_receipt, url_prefix='/receipt')
-
-from blueprints.shipping.resources import bp_shipping
-app.register_blueprint(bp_shipping, url_prefix='/shipping')
-
-from blueprints.transaction.resources import bp_transaction
-app.register_blueprint(bp_transaction, url_prefix='/transaction')
-
 from blueprints.user.resources import bp_user
 app.register_blueprint(bp_user, url_prefix='/user')
 
-from blueprints.register import bp_register
-app.register_blueprint(bp_register, url_prefix='/register')
+from blueprints.user_contact.resources import bp_user_contact
+app.register_blueprint(bp_user_contact, url_prefix='/usercontact')
+
+from blueprints.user_contact_group.resources import bp_user_contact_group
+app.register_blueprint(bp_user_contact_group, url_prefix='/user_contact_group')
+
+
+
+
 
 db.create_all()
