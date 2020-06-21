@@ -10,6 +10,19 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_cl
 
 
 bp_customer = Blueprint('customer', __name__)
-api = Api(bp_user_contact)
+api = Api(bp_customer)
 
 # using flask restful
+
+
+class UserResource(Resource):
+
+    # @internal_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry_user = Customer.query.filter_by(user_id=claims['id']).first()
+        qry = qry_user.filter_by(id=id).first()
+        if qry is not None:
+            return marshal(qry, Customer.response_fields), 200
+        return {'status': 'NOT_FOUND'}, 404
+        
