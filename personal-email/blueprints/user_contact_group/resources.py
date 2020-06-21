@@ -14,7 +14,7 @@ api = Api(bp_user_contact_group)
 # using flask restful
 
 
-class UserResource(Resource):
+class UserContactGroupResource(Resource):
 
     # @internal_required
     def get(self, id=None):
@@ -70,4 +70,4 @@ class UserResource(Resource):
 
 
 
-api.add_resource(UserResource, '', '/<id>')
+api.add_resource(UserContactGroupResource, '', '/<id>')
