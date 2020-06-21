@@ -3,7 +3,6 @@ from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import User
 from blueprints import db, app, internal_required
 from sqlalchemy import desc
-from blueprints.post.model import Post
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import uuid
 import hashlib
@@ -22,9 +21,7 @@ class UserResource(Resource):
         qry = User.query.get(id)
         if qry is not None:
             QRY = marshal(qry, User.response_fields)
-            post = Post.query.filter_by(
-                user_id=QRY['id']).first()
-            QRY['POST'] = marshal(post, Post.response_fields)
+            
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
@@ -67,7 +64,7 @@ class UserResource(Resource):
             parser.add_argument('password', location='json',
                                 required=True)
             parser.add_argument('address', location='json', required=True)
-             parser.add_argument('position', location='json', required=True)
+            parser.add_argument('position', location='json', required=True)
             args = parser.parse_args()
 
             qry.full_name = args['full_name']
@@ -131,5 +128,5 @@ class UserResource(Resource):
 #         return rows, 200
 
 
-api.add_resource(UserList, '', '/list')
+# api.add_resource(UserList, '', '/list')
 api.add_resource(UserResource, '', '/<id>')

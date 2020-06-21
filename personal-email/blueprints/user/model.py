@@ -23,7 +23,6 @@ class User(db.Model):
         'full_name': fields.String,
         'username': fields.String,
         'password': fields.String,
-        'address': fields.String,
         'status': fields.Boolean,
         'address': fields.String,
         'position': fields.String,
@@ -36,13 +35,12 @@ class User(db.Model):
         'username': fields.String,
         'status': fields.Boolean
     }
-    def __init__(self, full_name, username,password,salt, address,status,address,position):
+    def __init__(self, full_name, username,password,salt,status,address,position):
         
         self.full_name = full_name
         self.username = username
         self.password = password
         self.salt = salt
-        self.address = address
         self.status = status
         self.address = address
         self.position = position

@@ -3,7 +3,7 @@ from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import hashlib
 from blueprints import db, internal_required
-from ..client.model import Client
+from ..user.model import User
 
 bp_auth = Blueprint('auth', __name__)
 api = Api(bp_auth)
@@ -17,15 +17,15 @@ class CreateTokenResource(Resource):
         parser.add_argument('password', location='args', required=True)
         args = parser.parse_args()
 
-        qry_client = Client.query.filter_by(username=args['username']).first()
-        client_salt = qry_client.salt
+        qry_user = User.query.filter_by(username=args['username']).first()
+        user_salt = qry_user.salt
         hash_pass = hashlib.sha512(
-            ('%s%s' % (args['password'], client_salt)).encode('utf-8')).hexdigest()
+            ('%s%s' % (args['password'], user_salt)).encode('utf-8')).hexdigest()
 
-        if hash_pass == qry_client.password:
-            qry_client = marshal(qry_client, Client.jwt_claim_fields)
+        if hash_pass == qry_user.password:
+            qry_user = marshal(qry_user, User.jwt_claim_fields)
             token = create_access_token(
-                identity=args['username'], user_claims=qry_client)
+                identity=args['username'], user_claims=qry_user)
             return {'token': token}, 200
         else:
             return {'status': 'UNAUTHORIZED', 'message': 'invalid key or secret'}, 401
