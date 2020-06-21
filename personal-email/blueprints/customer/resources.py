@@ -28,8 +28,8 @@ class UserResource(Resource):
     
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('First_name', location='json')
-        parser.add_argument('last_name', location='json')
+        parser.add_argument('First_name', location='json', required=True)
+        parser.add_argument('last_name', location='json', required=True)
         parser.add_argument('email', location='json', required=True)
         parser.add_argument('phone', location='json', required=True)
         parser.add_argument('bod', location='json')
@@ -46,4 +46,8 @@ class UserResource(Resource):
         customer = Customer(args['First_name'], args['last_name'], args['email'], 
         args['phone'], args['bod'], args['address'], args['gender'], args['company'],  user_id)
 
+        db.session.add(customer)
+        db.session.commit()
+        app.logger.debug('DEBUG: %s', customer)
 
+        return marshal(customer, Customer.response_fields), 200, {'Content-Type': 'application/json'}
