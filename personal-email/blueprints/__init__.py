@@ -28,7 +28,7 @@ def internal_required(fn):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt_claims()
-        if not claims['internal']:
+        if not claims['status']:
             return {'status': 'FORBIDDEN', 'message': 'Internal Only!'}, 403
         else:
             return fn(*args, **kwargs)
@@ -86,6 +86,18 @@ app.register_blueprint(bp_user_contact, url_prefix='/usercontact')
 
 from blueprints.user_contact_group.resources import bp_user_contact_group
 app.register_blueprint(bp_user_contact_group, url_prefix='/user_contact_group')
+
+from blueprints.customer.resources import bp_customer
+app.register_blueprint(bp_customer, url_prefix='/customer')
+
+from blueprints.customer_member.resources import bp_customer_member
+app.register_blueprint(bp_customer_member, url_prefix='/customer-member')
+
+from blueprints.customer_group.resources import bp_customer_group
+app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
+
+from blueprints.send_mailjet.resources import bp_mailjet
+app.register_blueprint(bp_mailjet, url_prefix='/mailjet')
 
 
 

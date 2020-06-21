@@ -14,7 +14,7 @@ api = Api(bp_customer_member)
 
 # using flask restful
 
-class UserResource(Resource):
+class CustomerMemberResource(Resource):
 
     # @internal_required
     def get(self, id=None):
@@ -30,11 +30,14 @@ class UserResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('customer_id', location='json')
         parser.add_argument('group_id', location='json')
+        args = parser.parse_args()
 
-        customer_member = Customer(args['customer_id'], args['group_id'])
+        customer_member = CustomerMember(args['customer_id'], args['group_id'])
 
         db.session.add(customer_member)
         db.session.commit()
         app.logger.debug('DEBUG: %s', customer_member)
 
         return marshal(customer_member, CustomerMember.response_fields), 200, {'Content-Type': 'application/json'}
+
+api.add_resource(CustomerMemberResource, '', '/<id>')

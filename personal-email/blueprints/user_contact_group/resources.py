@@ -31,7 +31,7 @@ class UserContactGroupResource(Resource):
      
         args = parser.parse_args()
 
-        user_contact = User(args['name'])
+        user_contact = UserContactGroup(args['name'])
 
         db.session.add(user_contact)
         db.session.commit()

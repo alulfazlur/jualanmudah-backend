@@ -15,7 +15,7 @@ api = Api(bp_customer)
 # using flask restful
 
 
-class UserResource(Resource):
+class CustomerResource(Resource):
 
     # @internal_required
     def get(self, id=None):
@@ -25,7 +25,8 @@ class UserResource(Resource):
         if qry is not None:
             return marshal(qry, Customer.response_fields), 200
         return {'status': 'NOT_FOUND'}, 404
-    
+
+    @jwt_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('First_name', location='json', required=True)
@@ -34,13 +35,15 @@ class UserResource(Resource):
         parser.add_argument('phone', location='json', required=True)
         parser.add_argument('bod', location='json')
         parser.add_argument('address', location='json')
-        parser.add_argument('gender', location='json', choice=['male', 'female'])
+        parser.add_argument('gender', location='json', choices=['male', 'female'])
         parser.add_argument('company', location='json')
         # parser.add_argument('user_id', type=int location='json')
         
         args = parser.parse_args()
         claims = get_jwt_claims()
-        qry_user = Customer.query.filter_by(user_id=claims['id']).first()
+        qry_user = User.query.filter_by(id=claims['id']).first()
+        print("=============================")
+        print(qry_user)
         user_id = qry_user.id 
 
         customer = Customer(args['First_name'], args['last_name'], args['email'], 
@@ -51,3 +54,5 @@ class UserResource(Resource):
         app.logger.debug('DEBUG: %s', customer)
 
         return marshal(customer, Customer.response_fields), 200, {'Content-Type': 'application/json'}
+
+api.add_resource(CustomerResource, '', '/<id>')

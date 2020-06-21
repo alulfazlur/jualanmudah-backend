@@ -22,11 +22,10 @@ class CustomerGroup(db.Model):
         'updated_at': fields.DateTime,
     }
 
-    def __init__(self, name, created_at, updated_at):
+    def __init__(self, name):
 
         self.name = name
-        self.created_at = created_at
-        self.updated_at = updated_at
+
         
         
 
