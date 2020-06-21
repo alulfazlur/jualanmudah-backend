@@ -1,0 +1,40 @@
+from flask import Blueprint
+from flask_restful import Resource, Api, reqparse, marshal, inputs
+from .model import CustomerMember
+from blueprints import db, app, internal_required
+from sqlalchemy import desc
+from blueprints.user.model import User
+from blueprints.user_contact_group.model import UserContactGroup
+from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
+
+
+
+bp_customer_member = Blueprint('customer_member', __name__)
+api = Api(bp_customer_member)
+
+# using flask restful
+
+class UserResource(Resource):
+
+    # @internal_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry_user = Customer.query.filter_by(user_id=claims['id']).first()
+        qry_customer_member = CustomerMember.query.filter_by(customer_id=qry_user.id).first()
+        qry = qry_customer_member.filter_by(id=id).first()
+        if qry is not None:
+            return marshal(qry, Customer.response_fields), 200
+        return {'status': 'NOT_FOUND'}, 404
+    
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('customer_id', location='json')
+        parser.add_argument('group_id', location='json')
+
+        customer_member = Customer(args['customer_id'], args['group_id'])
+
+        db.session.add(customer_member)
+        db.session.commit()
+        app.logger.debug('DEBUG: %s', customer_member)
+
+        return marshal(customer_member, CustomerMember.response_fields), 200, {'Content-Type': 'application/json'}

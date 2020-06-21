@@ -18,6 +18,7 @@ class User(db.Model):
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     customer = db.relationship('Customer', backref='user', lazy=True)
+    user_contact = db.relationship('UserContact', backref='user', lazy=True)
 
     response_fields = {
         'id': fields.Integer,
