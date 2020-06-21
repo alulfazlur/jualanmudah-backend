@@ -35,13 +35,21 @@ class Customer(db.Model):
       
     }
 
-    def __init__(self, First_name, last_name,email):
+    def __init__(self, First_name, last_name, email, bod, address, gender, company, user_id, created_at, updated_at):
 
+        self.First_name = First_name
+        self.last_name = last_name
+        self.email = email
+        self.bod = bod
+        self.address = address
+        self.gender = gender
+        self.company = company
+        self.last_name = last_name
         self.user_id = user_id
-        self.contact_group_id = contact_group_id
-        self.email_or_wa = email_or_wa
+        self.created_at = created_at
+        self.updated_at = updated_at
         
         
 
     def __repr__(self):
-        return '<UserContact %r>' % self.id
+        return '<Customer %r>' % self.id
