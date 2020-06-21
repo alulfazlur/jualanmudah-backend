@@ -11,6 +11,7 @@ class Customer(db.Model):
     First_name = db.Column(db.String(2000))
     last_name = db.Column(db.String(2000))
     email = db.Column(db.String(200), unique=True, nullable=False)
+    phone = sb.Column(db.Integer)
     bod = db.Column(db.DateTime)
     address = db.Column(db.String(2000))
     gender = db.Column(db.String(200))
@@ -25,6 +26,7 @@ class Customer(db.Model):
         'First_name': fields.String,
         'last_name': fields.String,
         'email': fields.String,
+        'phone': fields.Integer,
         'bod': fields.DateTime,
         'address': fields.String,
         'gender': fields.String,
@@ -35,11 +37,12 @@ class Customer(db.Model):
       
     }
 
-    def __init__(self, First_name, last_name, email, bod, address, gender, company, user_id, created_at, updated_at):
+    def __init__(self, First_name, last_name, email, phone, bod, address, gender, company, user_id, created_at, updated_at):
 
         self.First_name = First_name
         self.last_name = last_name
         self.email = email
+        self.phone = phone
         self.bod = bod
         self.address = address
         self.gender = gender
