@@ -37,7 +37,7 @@ class UserContactResource(Resource):
         parser.add_argument('email_or_wa', location='json',required=True)
         args = parser.parse_args()
 
-        user_contact = User(args['user_id'],args['contact_id'],  args['email_or_wa'])
+        user_contact = UserContact(args['user_id'],args['contact_id'],  args['email_or_wa'])
 
         db.session.add(user_contact)
         db.session.commit()

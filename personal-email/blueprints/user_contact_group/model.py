@@ -11,6 +11,7 @@ class UserContactGroup(db.Model):
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
+    user_contact = db.relationship('UserContact', backref='user_contact_group', lazy=True)
 
     response_fields = {
         'id': fields.Integer,

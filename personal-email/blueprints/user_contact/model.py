@@ -7,8 +7,8 @@ from sqlalchemy.orm import relationship
 class UserContact(db.Model):
     __tablename__ = "user_contact"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer,nullable= False)
-    contact_group_id = db.Column(db.Integer,nullable= False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    contact_group_id = db.Column(db.Integer, db.ForeignKey('user_contact_group.id'))
     email_or_wa = db.Column(db.String(50), unique=True, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())

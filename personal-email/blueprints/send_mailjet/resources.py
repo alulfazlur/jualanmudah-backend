@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Api, Resource, marshal, reqparse, inputs
-from .model import EmailMessage
+from .model import MailJet
 from blueprints import db, app
 
 from mailjet_rest import Client
@@ -22,10 +22,10 @@ import os
 # from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 # from blueprints import admin_required, seller_required, buyer_required
 
-bp_email_message = Blueprint('table_email__message', __name__)
-api = Api(bp_email_message)
+bp_mailjet = Blueprint('mailjet', __name__)
+api = Api(bp_mailjet)
 
-class EmailMessageResource(Resource):
+class MailJetResource(Resource):
 
 #     def Create_Service(self, client_secret_file, api_name, api_version, *scopes):
 #         print(client_secret_file, api_name, api_version, scopes, sep='-')
@@ -145,4 +145,4 @@ class EmailMessageResource(Resource):
         return self.sendMessage(args['fmail'], args['fname'], args['tmail'], args['tname'],
         args['subject'], args['text'],args['HTMLmessage']), 200 
 
-api.add_resource(EmailMessageResource, '', '')
+api.add_resource(MailJetResource, '', '')

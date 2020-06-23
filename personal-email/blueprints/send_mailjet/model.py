@@ -5,8 +5,8 @@ from sqlalchemy.sql.expression import text
 from datetime import datetime
 from sqlalchemy import Integer, String, ForeignKey, Column
 
-class EmailMessage(db.Model):
-    __tablename__ = 'table_email__message'
+class MailJet(db.Model):
+    __tablename__ = 'mailjet'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     fmail = db.Column(db.String(2000))
     fname = db.Column(db.String(2000))
@@ -37,4 +37,4 @@ class EmailMessage(db.Model):
         self.HTMLmessage = HTMLmessage
     
     def __repr__(self):
-        return '<EmailMessage %r>' % self.id
+        return '<MailJet %r>' % self.id
