@@ -99,6 +99,9 @@ app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
 from blueprints.send_mailjet.resources import bp_mailjet
 app.register_blueprint(bp_mailjet, url_prefix='/mailjet')
 
+from blueprints.sent.resources import bp_sent
+app.register_blueprint(bp_sent, url_prefix='/sent' )
+
 
 
 

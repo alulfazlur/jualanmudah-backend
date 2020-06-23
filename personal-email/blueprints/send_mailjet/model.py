@@ -15,6 +15,7 @@ class MailJet(db.Model):
     subject = db.Column(db.String(2000))
     text = db.Column(db.String(2000))
     HTMLmessage = db.Column(db.String(2000))
+    sent_id = db.Column(db.Integer, db.ForeignKey('sent.id'))
 
     response_fields = {
         'id': fields.Integer,
@@ -25,9 +26,10 @@ class MailJet(db.Model):
         'subject': fields.String,
         'text': fields.String,
         'HTMLmessage': fields.String,
+        'sent_id': fields.Integer
     }
 
-    def __init__(self, fmail, fname, tmail, tname, subject, text, HTMLmessage):
+    def __init__(self, fmail, fname, tmail, tname, subject, text, HTMLmessage, sent_id):
         self.fmail = fmail
         self.fname = fname
         self.tmail = tmail
@@ -35,6 +37,7 @@ class MailJet(db.Model):
         self.subject = subject
         self.text = text
         self.HTMLmessage = HTMLmessage
+        self.sent_id = sent_id
     
     def __repr__(self):
         return '<MailJet %r>' % self.id

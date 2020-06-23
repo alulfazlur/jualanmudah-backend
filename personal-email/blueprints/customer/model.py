@@ -48,7 +48,6 @@ class Customer(db.Model):
         self.address = address
         self.gender = gender
         self.company = company
-        self.last_name = last_name
         self.user_id = user_id
         
         
