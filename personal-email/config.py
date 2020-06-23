@@ -18,6 +18,16 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = cfg['secret_key']['key']
     JWT_ACCES_TOKEN_EXPIRES = timedelta(days=1)
+    FIREBASECONFIG = {
+            "apiKey" : cfg['firebase']['apiKey'],
+            "authDomain" : cfg['firebase']['authDomain'],
+            "databaseURL" : cfg['firebase']['databaseURL'],
+            "projectId" : cfg['firebase']['projectId'],
+            "storageBucket" : cfg['firebase']['storageBucket'],
+            "messagingSenderId" : cfg['firebase']['messagingSenderId'],
+            "appId" : cfg['firebase']['appId'],
+            "measurementId" : cfg['firebase']['measurementId']
+    }
 
 
 class DevelopmentConfig(Config):

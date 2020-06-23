@@ -11,3 +11,4 @@ pytest
 pytest-cov
 werkzeug==0.16.0
 mailjet-rest
+pyrebase
