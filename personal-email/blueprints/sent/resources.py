@@ -82,8 +82,6 @@ class SentResource(Resource):
         # menentukan user nama pengirim email
         user = User.query.filter_by(id=claims['id']).first()
         marshaluser = marshal(user, User.response_fields)
-        print("=====================================================")
-        print(marshaluser)
         
         # menentukan email user contact mail
         to_mail = UserContact.query.filter_by(user_id=claims['id'])
@@ -96,27 +94,28 @@ class SentResource(Resource):
         sent = qry_sent.filter_by(id=args['sent_id']).first()
         marshalsent= marshal(sent, Sent.response_fields)
         
-        qry_customer = Customer.query.filter_by(user_id=claims['id']).first()
         # menentukan email customer
+        qry_customer = Customer.query.filter_by(user_id=claims['id']).first()
         qry_sent_member = CustomerMember.query.filter_by(id=sent.member_id)
         qry_sent_member = qry_sent_member.filter_by(customer_id=qry_customer.id)
         qry_sent_member = qry_sent_member.filter_by(group_id=args['group_id'])
         
-
+        # diperiksa dulu apakah statusnya "sent" atau "draft"
+        # jika statusnya "draft", maka email akan diikirim
+        # jika statusnya "sent", maka email tidak perlu dikirim lgi...
         qry = Sent.query.filter_by(id=claims['id']).first()
-        qry.status = "sent"
-        db.session.commit()
+        if qry.status == "draft":
+            db.session.commit()
+            # mengirim email ke customer satu per satu
+            for member in qry_sent_member:
+                customer = Customer.query.filter_by(id=member.customer_id).first()
+                marshalcustomer = marshal(customer, Customer.response_fields)
+                result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
+                , marshalcustomer['email'], marshalcustomer['First_name'], marshalsent['subject']
+                , marshalsent['reminder'], marshalsent['content'])
 
-        # mengirim email ke customer satu per satu
-        for member in qry_sent_member:
-            customer = Customer.query.filter_by(id=member.customer_id).first()
-            marshalcustomer = marshal(customer, Customer.response_fields)
-            result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
-            , marshalcustomer['email'], marshalcustomer['First_name'], marshalsent['subject']
-            , marshalsent['reminder'], marshalsent['content'])
-
-            return result, 200
-        return {'status': 'NOT_FOUND'}, 404
+                return result, 200
+            return {'status': 'NOT_FOUND'}, 404
 
         
 
