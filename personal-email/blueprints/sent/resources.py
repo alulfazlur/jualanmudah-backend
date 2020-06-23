@@ -68,44 +68,46 @@ class SentResource(Resource):
         parser = reqparse.RequestParser()
 
         # milih draft mana yang mau dikirim
-        parser.add_argument('sent_id', location='json')
+        # parser.add_argument('sent_id', location='json')
 
         # masukan contact id user email or wa?
-        parser.add_argument('contact_id', location='json')
+        # parser.add_argument('contact_id', location='json')
 
         # masukan contact group yang akan dikirim
-        parser.add_argument('group_id', location='json')
+        # parser.add_argument('group_id', location='json')
         
         args = parser.parse_args()
         claims = get_jwt_claims()
-
+        
         # menentukan user nama pengirim email
         user = User.query.filter_by(id=claims['id']).first()
         marshaluser = marshal(user, User.response_fields)
-        
-        # menentukan email user contact mail
-        to_mail = UserContact.query.filter_by(user_id=claims['id'])
-        to_mail = to_mail.filter_by(contact_group_id=args['contact_id']).first()
-        marshaluserMail= marshal(to_mail, UserContact.response_fields)
-        
+
         # menentukan content dari tabel sent
         qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        # sent = qry_sent.get(args['sent_id'])
-        sent = qry_sent.filter_by(id=args['sent_id']).first()
+        sent = qry_sent.filter_by(id=marshaluser['id']).first()
         marshalsent= marshal(sent, Sent.response_fields)
+
+        # menentukan email user contact mail
+        to_mail = UserContact.query.filter_by(user_id=claims['id'])
+        to_mail = to_mail.filter_by(contact_group_id=marshalsent['contact_id']).first()
+        marshaluserMail= marshal(to_mail, UserContact.response_fields)
+        
         
         # menentukan email customer
         qry_customer = Customer.query.filter_by(user_id=claims['id']).first()
         qry_sent_member = CustomerMember.query.filter_by(id=sent.member_id)
         qry_sent_member = qry_sent_member.filter_by(customer_id=qry_customer.id)
-        qry_sent_member = qry_sent_member.filter_by(group_id=args['group_id'])
+        qry_sent_member = qry_sent_member.filter_by(group_id=marshalsent['group_id'])
         
         # diperiksa dulu apakah statusnya "sent" atau "draft"
         # jika statusnya "draft", maka email akan diikirim
         # jika statusnya "sent", maka email tidak perlu dikirim lgi...
         qry = Sent.query.filter_by(id=claims['id']).first()
         if qry.status == "draft":
+            qry.status = "sent"
             db.session.commit()
+
             # mengirim email ke customer satu per satu
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(id=member.customer_id).first()
@@ -117,23 +119,26 @@ class SentResource(Resource):
                 return result, 200
             return {'status': 'NOT_FOUND'}, 404
 
-        
-
-    # @internal_required
+    @internal_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json', required=True)
         parser.add_argument('member_id', location='json', required=True)
-        # parser.add_argument('send_date', location='json', required=True)
-        parser.add_argument('status', location='json', required=True)
+        parser.add_argument('status', location='json', required=True, choices=['draft', 'sent'])
         parser.add_argument('subject', location='json', required=True)
         parser.add_argument('reminder', location='json', required=True)
         parser.add_argument('content', location='json', required=True)
         parser.add_argument('device', location='json', required=True)
+        parser.add_argument('contact_id', location='json', required=True)
+        parser.add_argument('group_id', location='json', required=True)
         args = parser.parse_args()
+        
+        claims = get_jwt_claims()
+        user_id = User.query.filter_by(id=claims['id']).first()
+        user_id = user_id.id
 
-        sent = Sent(args['user_id'],args['member_id'],args['status'], args['subject']
-        , args['reminder'], args['content'],args['device'])
+        sent = Sent(user_id, args['member_id'], args['status'], args['subject']
+        , args['reminder'], args['content'], args['device'], args['contact_id'], args['group_id'])
 
         db.session.add(sent)
         db.session.commit()
@@ -141,32 +146,7 @@ class SentResource(Resource):
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @internal_required
-    # def patch(self, id):
-    #     claims = get_jwt_claims()
-    #     qry = User.query.filter_by(id=claims['id']).first()
-    #     if qry is None:
-    #         return {'status': 'NOT_FOUND'}, 404
-    #     else:
-    #         parser = reqparse.RequestParser()
-    #         parser.add_argument('user_id', location='json', required=True)
-    #         parser.add_argument('member_id', location='json', required=True)
-    #         parser.add_argument('send_date', location='json', required=True)
-    #         parser.add_argument('status', location='json', required=True)
-    #         parser.add_argument('content', location='json', required=True)
-    #         parser.add_argument('device', location='json', required=True)
-          
-    #         args = parser.parse_args()
-    #         qry.user_id = args['user_id']
-    #         qry.member_id = args['member_id']
-    #         qry.send_date = args['send_date']
-    #         qry.status = args['status']
-    #         qry.content = args['content']
-    #         qry.device = args[device]  
-    #         db.session.commit()
-
-    #         return marshal(qry, Sent.response_fields), 200
-
+    
     # @internal_required
     def delete(self, id):
         qry = Sent.query.get(id)
@@ -178,6 +158,68 @@ class SentResource(Resource):
     def options(self):
         return {}, 200
 
+class SendMailDirect(Resource):
+
+    @internal_required
+    # post dan langsung dikirim
+    def post(self):  
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json', required=True)
+        parser.add_argument('member_id', location='json', required=True)
+        parser.add_argument('status', location='json')
+        parser.add_argument('subject', location='json', required=True)
+        parser.add_argument('reminder', location='json', required=True)
+        parser.add_argument('content', location='json', required=True)
+        parser.add_argument('device', location='json', required=True)
+        parser.add_argument('contact_id', location='json', required=True)
+        parser.add_argument('group_id', location='json', required=True)
+        args = parser.parse_args()
+        
+        # sebelum dikirim, menyimpan data email ke dalam database
+        claims = get_jwt_claims()
+        user = User.query.filter_by(id=claims['id']).first()
+        user_id = user.id
+
+        # menentukan user nama pengirim email
+        marshaluser = marshal(user, User.response_fields)
+        
+        # menentukan email user contact mail
+        to_mail = UserContact.query.filter_by(user_id=claims['id'])
+        to_mail = to_mail.filter_by(contact_group_id=args['contact_id']).first()
+        marshaluserMail= marshal(to_mail, UserContact.response_fields)
+        
+        # menentukan content dari tabel sent
+        qry_sent = Sent.query.filter_by(user_id=claims['id'])
+        sent = qry_sent.filter_by(id=user_id).first()
+        marshalsent= marshal(sent, Sent.response_fields)
+        
+        # menentukan email customer
+        qry_customer = Customer.query.filter_by(user_id=claims['id']).first()
+        qry_sent_member = CustomerMember.query.filter_by(id=sent.member_id)
+        qry_sent_member = qry_sent_member.filter_by(customer_id=qry_customer.id)
+        qry_sent_member = qry_sent_member.filter_by(group_id=args['group_id'])
+        
+        # sebelum dikirim data email disimpan di database dengan status sudah dikirim
+        args['status'] = "sent"
+        sent = Sent(user_id, args['member_id'], args['status'], args['subject']
+        , args['reminder'], args['content'], args['device'], args['contact_id'], args['group_id'])
+        db.session.add(sent)
+        db.session.commit()
+
+        # mengirim email ke customer satu per satu
+        for member in qry_sent_member:
+            customer = Customer.query.filter_by(id=member.customer_id).first()
+            marshalcustomer = marshal(customer, Customer.response_fields)
+            result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
+            , marshalcustomer['email'], marshalcustomer['First_name'], marshalsent['subject']
+            , marshalsent['reminder'], marshalsent['content'])
+
+            return result, 200
+        return {'status': 'NOT_FOUND'}, 404
+
+        app.logger.debug('DEBUG : %s', sent)
+        return marshal(sent, Sent.response_fields), 200, {'Content-Type': 'application/json'}
 
 
 api.add_resource(SentResource, '', '/<id>')
+api.add_resource(SendMailDirect, '/direct', '/<id>')

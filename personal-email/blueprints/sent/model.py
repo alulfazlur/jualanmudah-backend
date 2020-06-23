@@ -15,6 +15,8 @@ class Sent(db.Model):
     reminder = db.Column(db.String(2000))
     content = db.Column(db.Text, nullable= False)
     device = db.Column(db.String(50), nullable=False)
+    contact_id = db.Column(db.Integer)
+    group_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     send_mailjet = db.relationship('MailJet', backref='sent', lazy=True)
@@ -30,19 +32,23 @@ class Sent(db.Model):
         'reminder': fields.String,
         'content': fields.String,
         'device' : fields.String,
+        'contact_id': fields.Integer,
+        'group_id': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
       
     }
 
-    def __init__(self, user_id, member_id, status, subject, reminder, content,device):
+    def __init__(self, user_id, member_id, status, subject, reminder, content, device, contact_id, group_id):
         self.user_id = user_id
         self.member_id = member_id
         self.status = status
         self.subject = subject
         self.reminder = reminder
         self.content = content
-        self.device = device   
+        self.device = device  
+        self.contact_id = contact_id
+        self.group_id = group_id
 
     def __repr__(self):
         return '<Sent %r>' % self.id
