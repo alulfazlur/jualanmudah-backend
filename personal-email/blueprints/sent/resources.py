@@ -124,15 +124,15 @@ class SentResource(Resource):
     @internal_required
     def post(self):  
         parser = reqparse.RequestParser()
-        parser.add_argument('user_id', location='json', required=True)
-        parser.add_argument('member_id', location='json', required=True)
+        parser.add_argument('user_id', location='json')
+        parser.add_argument('member_id', location='json')
         # parser.add_argument('status', location='json', required=True, choices=['draft', 'sent'])
-        parser.add_argument('subject', location='json', required=True)
-        parser.add_argument('reminder', location='json', required=True)
-        parser.add_argument('content', location='json', required=True)
-        parser.add_argument('device', location='json', required=True)
-        parser.add_argument('contact_id', location='json', required=True)
-        parser.add_argument('group_id', location='json', required=True)
+        parser.add_argument('subject', location='json')
+        parser.add_argument('reminder', location='json')
+        parser.add_argument('content', location='json')
+        parser.add_argument('device', location='json')
+        parser.add_argument('contact_id', location='json')
+        parser.add_argument('group_id', location='json')
         args = parser.parse_args()
         
         claims = get_jwt_claims()
@@ -140,8 +140,9 @@ class SentResource(Resource):
         user_id = user_id.id
 
         status = "draft"
-        sent = Sent(user_id, args['member_id'], status, args['subject']
-        , args['reminder'], args['content'], args['device'], args['contact_id'], args['group_id'])
+        mailjet_id = ""
+        sent = Sent(user_id, args['member_id'], status, args['subject'], args['reminder'], 
+        args['content'], args['device'], args['contact_id'], args['group_id'], mailjet_id)
 
         db.session.add(sent)
         db.session.commit()
