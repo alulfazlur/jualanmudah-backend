@@ -120,12 +120,13 @@ class SentResource(Resource):
                 return result, 200
             return {'status': 'NOT_FOUND'}, 404
 
+    # post draft
     @internal_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json', required=True)
         parser.add_argument('member_id', location='json', required=True)
-        parser.add_argument('status', location='json', required=True, choices=['draft', 'sent'])
+        # parser.add_argument('status', location='json', required=True, choices=['draft', 'sent'])
         parser.add_argument('subject', location='json', required=True)
         parser.add_argument('reminder', location='json', required=True)
         parser.add_argument('content', location='json', required=True)
@@ -138,7 +139,8 @@ class SentResource(Resource):
         user_id = User.query.filter_by(id=claims['id']).first()
         user_id = user_id.id
 
-        sent = Sent(user_id, args['member_id'], args['status'], args['subject']
+        status = "draft"
+        sent = Sent(user_id, args['member_id'], status, args['subject']
         , args['reminder'], args['content'], args['device'], args['contact_id'], args['group_id'])
 
         db.session.add(sent)
