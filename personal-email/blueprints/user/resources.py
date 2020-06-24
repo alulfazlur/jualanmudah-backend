@@ -6,7 +6,7 @@ from blueprints.firebase.upload import UploadToFirebase
 from sqlalchemy import desc
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import uuid
-import hashlib
+import hashlib,werkzeug
 
 
 bp_user = Blueprint('user', __name__)
@@ -30,20 +30,23 @@ class UserResource(Resource):
     def post(self):
         
         parser = reqparse.RequestParser()
-        parser.add_argument('full_name', location='json', required=True)
-        parser.add_argument('username', location='json', required=True)
-        parser.add_argument('password', location='json',
+        parser.add_argument('full_name', location='form', required=True)
+        parser.add_argument('username', location='form', required=True)
+        parser.add_argument('password', location='form',
                             required=True)
-        parser.add_argument('status',type=bool, location='json')
-        parser.add_argument('address', location='json', required=True)
-        parser.add_argument('position', location='json', required=True)
+        parser.add_argument('status',type=bool, location='form')
+        parser.add_argument('address', location='form', required=True)
+        parser.add_argument('position', location='form', required=True)
+        parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
         args = parser.parse_args()
-
+        image = args['user_image']
+        upload_image = UploadToFirebase ()
+        link = upload_image.UploadImage(image,"user_image")
         salt = uuid.uuid4().hex
         hash_pass = hashlib.sha512(
             ('%s%s' % (args['password'], salt)).encode('utf-8')).hexdigest()
         user = User(args['full_name'],
-                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'])
+                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'],link)
 
         db.session.add(user)
         db.session.commit()
