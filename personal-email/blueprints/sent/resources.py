@@ -318,7 +318,8 @@ class getTrackingMail(Resource):
         offset = (args['p']*args['rp']-args['rp'])
         # qry = Sent.query
         claims = get_jwt_claims()
-        qry_sent = Sent.query.filter_by(id=args['sent_id']).first()
+        qry_sent = Sent.query.filter_by(user_id=claims['id'])
+        qry_sent = qry_sent.filter_by(id=args['sent_id']).first()
         list_mail = qry_sent.mailjet_id
         list_mail_id = list_mail.split('#')
 
@@ -326,7 +327,7 @@ class getTrackingMail(Resource):
         for index in range(args['rp']):
             row = self.getMailFromMailjet(list_mail_id[index])
             rows.append(row)
-            
+
         return rows, 200
 
 
