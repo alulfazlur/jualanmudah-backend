@@ -266,6 +266,8 @@ class SendMailDirect(Resource):
 
 class getDraftById(Resource):
 
+    # fungsi untuk get draft by id
+    @internal_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('draft_id', location='json')
