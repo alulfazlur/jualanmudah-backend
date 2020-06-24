@@ -12,8 +12,9 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False, default=20)
     salt = db.Column(db.String(255))
     status = db.Column(db.Boolean, default=False, nullable=True)
-    address = db.Column(db.String(255), unique=True, nullable=False) 
-    position = db.Column(db.String(50), unique=True, nullable=False)
+    address = db.Column(db.String(255), nullable=False) 
+    position = db.Column(db.String(50), nullable=False)
+    user_image =  db.Column(db.String(2000), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
@@ -28,6 +29,7 @@ class User(db.Model):
         'status': fields.Boolean,
         'address': fields.String,
         'position': fields.String,
+        'user_image' : fields.String,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
       
@@ -37,7 +39,7 @@ class User(db.Model):
         'username': fields.String,
         'status': fields.Boolean
     }
-    def __init__(self, full_name, username,password,salt,status,address,position):
+    def __init__(self, full_name, username,password,salt,status,address,position,user_image):
         
         self.full_name = full_name
         self.username = username
@@ -46,7 +48,7 @@ class User(db.Model):
         self.status = status
         self.address = address
         self.position = position
-        
+        self.user_image = user_image
 
     def __repr__(self):
         return '<User %r>' % self.id
