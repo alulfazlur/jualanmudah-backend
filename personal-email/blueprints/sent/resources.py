@@ -266,7 +266,7 @@ class SendMailDirect(Resource):
 
              # mengamabil MessageID mailjet
             message_id = str(result['Messages'][0]['To'][0]['MessageID'])
-            mailjet_id +=  "#" + message_id + "#"
+            mailjet_id +=  "#" + message_id
         
         # menyimpan ke databases
         status = "sent"
@@ -296,7 +296,41 @@ class getDraftById(Resource):
         return {'status': 'NOT FOUND'}, 404
 
 
+class getTrackingMail(Resource):
+
+    def getMailFromMailjet(self, mailjet_id):
+        api_key = '13601c8ae59de0bbcfedc3658f3376f1'
+        api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
+        mailjet = Client(auth=(api_key, api_secret), version='v3')
+        result = mailjet.message.get(1152921508360793791)
+        # print (result.status_code)
+        # print (result.json())
+        return result.status_code, result.json()
+
+    @internal_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('sent_id', location='args')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+        # qry = Sent.query
+        claims = get_jwt_claims()
+        qry_sent = Sent.query.filter_by(id=args['sent_id']).first()
+        list_mail = qry_sent.mailjet_id
+        list_mail_id = list_mail.split('#')
+
+        rows = []
+        for index in range(args['rp']):
+            row = self.getMailFromMailjet(list_mail_id[index])
+            rows.append(row)
+            
+        return rows, 200
+
 
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '<id>')
+api.add_resource(getTrackingMail, '/tracking', '<id>')
