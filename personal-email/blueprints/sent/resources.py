@@ -22,6 +22,23 @@ api = Api(bp_sent)
 
 class SentResource(Resource):
 
+    # fungsi untuk get list draft
+    @internal_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry = Sent.query.filter_by(user_id=claims['id']).all()
+        rows = []
+        if qry is not None:
+            for sent in qry:
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                qry_group = CustomerGroup.query.filter_by(id=qry_member.group_id).first()
+                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                sent = marshal(sent, Sent.response_fields)
+                sent['group_customer'] = marshal_group
+                rows.append(sent)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
     # fungsi untuk mengirim email melalui mailjet
     def sendMessage(self, fmail, fname, tmail, tname, subject, text, HTMLmessage):
         api_key = 'c678d961386dc4f4ca937db65790ae15'
@@ -50,18 +67,6 @@ class SentResource(Resource):
         }
         result = mailjet.send.create(data=data)
         return result.status_code, result.json()
-
-    # fungsi untuk get list draft
-    @internal_required
-    def get(self, id=None):
-        claims = get_jwt_claims()
-        qry = Sent.query.filter_by(user_id=claims['id']).all()
-        rows = []
-        if qry is not None:
-            for sent in qry:
-                rows.append(marshal(sent, Sent.response_fields))
-            return rows, 200
-        return {'status': 'NOT_FOUND'}, 404
 
     # fungsi untuk mengirim email dari draft
     @internal_required
@@ -298,6 +303,7 @@ class getDraftById(Resource):
 
 class getTrackingMail(Resource):
 
+    # fungsi buat get mail dari mailjet by mailjet_id
     def getMailFromMailjet(self, mailjet_id):
         api_key = '13601c8ae59de0bbcfedc3658f3376f1'
         api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
@@ -305,7 +311,7 @@ class getTrackingMail(Resource):
         result = mailjet.message.get(1152921508360793791)
         return result.status_code, result.json()
 
-    #
+    # fungsi untuk get list sent all mail dari  mailjet
     @internal_required
     def get(self):
         parser = reqparse.RequestParser()
