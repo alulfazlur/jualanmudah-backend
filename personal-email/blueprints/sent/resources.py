@@ -303,10 +303,9 @@ class getTrackingMail(Resource):
         api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
         mailjet = Client(auth=(api_key, api_secret), version='v3')
         result = mailjet.message.get(1152921508360793791)
-        # print (result.status_code)
-        # print (result.json())
         return result.status_code, result.json()
 
+    #
     @internal_required
     def get(self):
         parser = reqparse.RequestParser()
@@ -316,7 +315,6 @@ class getTrackingMail(Resource):
 
         args = parser.parse_args()
         offset = (args['p']*args['rp']-args['rp'])
-        # qry = Sent.query
         claims = get_jwt_claims()
         qry_sent = Sent.query.filter_by(user_id=claims['id'])
         qry_sent = qry_sent.filter_by(id=args['sent_id']).first()
@@ -325,7 +323,7 @@ class getTrackingMail(Resource):
 
         rows = []
         for index in range(args['rp']):
-            row = self.getMailFromMailjet(list_mail_id[index])
+            row = self.getMailFromMailjet(int(list_mail_id[index]))
             rows.append(row)
 
         return rows, 200
