@@ -22,20 +22,57 @@ api = Api(bp_sent)
 
 class SentResource(Resource):
 
+    # fungsi buat get mail dari mailjet by mailjet_id
+    def getMailFromMailjet(self, mailjet_id):
+        api_key = '13601c8ae59de0bbcfedc3658f3376f1'
+        api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
+        mailjet = Client(auth=(api_key, api_secret), version='v3')
+        result = mailjet.message.get(1152921508360793791)
+        return result.status_code, result.json()
+
     # fungsi untuk get list draft
     @internal_required
     def get(self, id=None):
         claims = get_jwt_claims()
         qry = Sent.query.filter_by(user_id=claims['id']).all()
         rows = []
+
+        # get list sent, customer group, customer
         if qry is not None:
             for sent in qry:
-                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id).first()
-                qry_group = CustomerGroup.query.filter_by(id=qry_member.group_id).first()
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                array_customer = []
+                for customer in qry_member:
+                    customer = Customer.query.filter_by(id=customer.customer_id).first()
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                 sent = marshal(sent, Sent.response_fields)
                 sent['group_customer'] = marshal_group
+                sent['customer'] =array_customer
                 rows.append(sent)
+                
+
+                #========================================================home work++++++++++++++++++++++++++++++++++++++++++++++++++
+                # menghitung rating open, clicked
+                opened = 0
+                clicked = 0
+                sent = 0
+                sent.mailjet_id
+                list_mail = qry_sent.mailjet_id
+                list_mail_id = list_mail.split('#')
+                for index in range(0, len(list_mail_id)):
+                    result = self.getMailFromMailjet(int(list_mail_id[index]))
+                    status = result['Data'][0]['Status']
+                    if status == "opened" or status == "clicked":
+                        opened += 1
+                    elif status == "clicked":
+                        clicked += 1
+                    elif status == "sent" or status == "opened" or status == "clicked":
+                        sent += 1
+
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
@@ -240,7 +277,7 @@ class SendMailDirect(Resource):
         qry_sent_member = CustomerMember.query.filter_by(id=args['member_id'])
         qry_sent_member = qry_sent_member.filter_by(customer_id=qry_customer.id)
         qry_sent_member = qry_sent_member.filter_by(group_id=args['group_id'])
-        
+        qry_member
         # field mailjet_id yang akan disimpan
         mailjet_id = ""
 
@@ -328,7 +365,7 @@ class getTrackingMail(Resource):
         list_mail_id = list_mail.split('#')
 
         rows = []
-        for index in range(args['rp']):
+        for index in range(1, args['rp']):
             row = self.getMailFromMailjet(int(list_mail_id[index]))
             rows.append(row)
 
