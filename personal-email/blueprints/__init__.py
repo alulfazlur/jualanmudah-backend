@@ -11,6 +11,7 @@ from flask_script import Manager
 from logging.handlers import RotatingFileHandler
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_claims
 from flask_cors import CORS, cross_origin
+from flask_mail import Mail
 
 
 app = Flask(__name__)
@@ -18,6 +19,19 @@ CORS(app, origins="*", allow_headers=[
     "Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
     supports_credentials=True, intercept_exceptions=False)
 jwt = JWTManager(app)
+
+app.config.update(dict(
+    DEBUG = True,
+    MAIL_SERVER = 'smtp.gmail.com',
+    MAIL_PORT = 587,
+    MAIL_USE_TLS = True,
+    MAIL_USE_SSL = False,
+    MAIL_USERNAME = 'jinadabf@gmail.com',
+    MAIL_PASSWORD = 'bountyhunter',
+))
+mail = Mail(app)
+
+
 
 @app.route("/")
 def hello():
@@ -98,6 +112,9 @@ app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
 
 from blueprints.send_mailjet.resources import bp_mailjet
 app.register_blueprint(bp_mailjet, url_prefix='/mailjet')
+
+from blueprints.send_flask_mail.resources import bp_flaskmail
+app.register_blueprint(bp_flaskmail, url_prefix='/flaskmail')
 
 from blueprints.sent.resources import bp_sent
 app.register_blueprint(bp_sent, url_prefix='/sent' )

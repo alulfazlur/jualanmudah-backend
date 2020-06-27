@@ -21,6 +21,7 @@ class Sent(db.Model):
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     send_mailjet = db.relationship('MailJet', backref='sent', lazy=True)
+    send_flaskmail = db.relationship('FlaskMail', backref='sent', lazy=True)
     
 
     response_fields = {
