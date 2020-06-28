@@ -20,17 +20,17 @@ CORS(app, origins="*", allow_headers=[
     supports_credentials=True, intercept_exceptions=False)
 jwt = JWTManager(app)
 
-app.config.update(dict(
-    DEBUG = True,
-    MAIL_SERVER = 'smtp.gmail.com',
-    MAIL_PORT = 587,
-    MAIL_USE_TLS = True,
-    MAIL_USE_SSL = False,
-    MAIL_USERNAME = 'jinadabf@gmail.com',
-    MAIL_PASSWORD = 'bountyhunter',
-))
-mail = Mail(app)
 
+# app.config.update(dict(
+#     DEBUG = True,
+#     MAIL_SERVER = 'smtp.gmail.com',
+#     MAIL_PORT = 587,
+#     MAIL_USE_TLS = True,
+#     MAIL_USE_SSL = False,
+#     MAIL_USERNAME = 'jinadabf@gmail.com',
+#     MAIL_PASSWORD = 'bountyhunter',
+# ))
+# mail = Mail(app)
 
 
 @app.route("/")

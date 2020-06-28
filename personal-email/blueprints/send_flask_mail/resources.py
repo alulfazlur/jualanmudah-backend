@@ -4,13 +4,14 @@ from flask_mail import Message
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import FlaskMail
-from blueprints import db, app, internal_required, mail
+from blueprints import db, app, internal_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.customer.model import Customer
 from blueprints.sent.model import Sent
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
-
+from blueprints import app
+from flask_mail import Mail
 
 
 bp_flaskmail = Blueprint('flaskmail', __name__)
@@ -19,7 +20,16 @@ api = Api(bp_flaskmail)
 class FlaskMailResource(Resource):
 
     def sendMessage(self, fmail, tmail, subject, text, HTMLmessage):
-     
+        app.config.update(dict(
+            DEBUG = True,
+            MAIL_SERVER = 'smtp.gmail.com',
+            MAIL_PORT = 587,
+            MAIL_USE_TLS = True,
+            MAIL_USE_SSL = False,
+            MAIL_USERNAME = 'jinadabf@gmail.com',
+            MAIL_PASSWORD = 'bountyhunter',
+        ))
+        mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
         msg.body = text
         msg.html = HTMLmessage
