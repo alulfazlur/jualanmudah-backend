@@ -24,17 +24,9 @@ api = Api(bp_sent)
 
 
 class SentResource(Resource):
-
-    # fungsi buat get mail dari mailjet by mailjet_id
-    def getMailFromMailjet(self, mailjet_id):
-        api_key = '13601c8ae59de0bbcfedc3658f3376f1'
-        api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
-        mailjet = Client(auth=(api_key, api_secret), version='v3')
-        result = mailjet.message.get(1152921508360793791)
-        return result.status_code, result.json()
-
+    
     # get all list draft and sent email
-    @internal_required
+    @staff_required
     def get(self, id=None):
         claims = get_jwt_claims()
         qry = Sent.query.filter_by(user_id=claims['id']).all()
@@ -59,7 +51,7 @@ class SentResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     # fungsi untuk mengirim email melalui mailjet
-    # FMAIL = MAIL_USERNAME
+    @staff_required
     def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
         app.config.update(dict(
             DEBUG = True,
@@ -78,7 +70,7 @@ class SentResource(Resource):
     
 
     # send an email from draft
-    @internal_required
+    @staff_required
     def patch(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('sent_id', location='json')
@@ -131,7 +123,7 @@ class SentResource(Resource):
                 
 
     # post to draft
-    @internal_required
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('subject', location='json')
@@ -156,7 +148,7 @@ class SentResource(Resource):
         return marshal(sent, Sent.response_fields), 200
 
     
-    # @internal_required
+    @staff_required
     def delete(self, id):
         qry = Sent.query.get(id)
         if qry is None:
@@ -187,7 +179,7 @@ class SendMailDirect(Resource):
         return "Sent"
 
     # post and direct to sent mail from flask mail
-    @internal_required
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('subject', location='json', required=True)
@@ -237,7 +229,7 @@ class SendMailDirect(Resource):
 class getDraftById(Resource):
 
     # fungsi untuk get draft by id
-    @internal_required
+    @staff_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('draft_id', location='json')
@@ -252,33 +244,6 @@ class getDraftById(Resource):
         return {'status': 'NOT FOUND'}, 404
 
 
-class getTrackingMail(Resource):
-
-    # get tracking an email
-    @internal_required
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('sent_id', location='args')
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp']-args['rp'])
-        claims = get_jwt_claims()
-        qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        qry_sent = qry_sent.filter_by(id=args['sent_id']).first()
-        list_mail = qry_sent.mailjet_id
-        list_mail_id = list_mail.split('#')
-
-        rows = []
-        for index in range(1, args['rp']):
-            row = self.getMailFromMailjet(int(list_mail_id[index]))
-            rows.append(row)
-
-        return rows, 200
-
-
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '<id>')
-api.add_resource(getTrackingMail, '/tracking', '<id>')
