@@ -220,7 +220,7 @@ class SendMailDirect(Resource):
 
         # send an email from flask mail 
         # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
-        str_get = "<img src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+        str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
             customer = Customer.query.filter_by(user_id=claims['id'])
@@ -230,7 +230,7 @@ class SendMailDirect(Resource):
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
             content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
             print("+++++++++++++++++=======================-----------------")
-            print(content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+            print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
 
