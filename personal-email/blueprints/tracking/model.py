@@ -24,14 +24,11 @@ class Track(db.Model):
         'updated_at': fields.DateTime
     }
 
-    def __init__(self, user_id, status, subject, content, device, contact_id, group_id):
-        self.user_id = user_id
-        self.status = status
-        self.subject = subject
-        self.content = content
-        self.device = device  
-        self.contact_id = contact_id
-        self.group_id = group_id
+    def __init__(self, sent_id, customer_id, status_open, status_click):
+        self.sent_id = sent_id
+        self.customer_id = customer_id
+        self.status_open = status_open
+        self.status_click = status_click
 
     def __repr__(self):
         return '<Sent %r>' % self.id
