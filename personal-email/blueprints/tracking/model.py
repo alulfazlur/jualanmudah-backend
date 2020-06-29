@@ -4,8 +4,8 @@ from sqlalchemy import Integer, ForeignKey, String, Column
 from sqlalchemy.orm import relationship
 
 
-class Sent(db.Model):
-    __tablename__ = "sent"
+class Track(db.Model):
+    __tablename__ = "track"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer)
     send_date = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
