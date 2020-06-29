@@ -17,11 +17,11 @@ class Track(db.Model):
     response_fields = {
         'id': fields.Integer,
         'sent_id': fields.Integer,
-        'customer_id':
-
+        'customer_id':fields.Integer,
+        'status_open': fields.String,
+        'status_click': fields.String,
         'created_at': fields.DateTime,
-        'updated_at': fields.DateTime,
-
+        'updated_at': fields.DateTime
     }
 
     def __init__(self, user_id, status, subject, content, device, contact_id, group_id):
