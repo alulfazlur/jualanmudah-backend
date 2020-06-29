@@ -1,0 +1,15 @@
+flask
+flask-cors
+flask-restful
+flask-sqlalchemy
+flask-migrate
+flask-script
+pymysql
+flask-jwt-extended
+requests
+pytest
+pytest-cov
+werkzeug==0.16.0
+mailjet-rest
+pyrebase
+flask-mail
