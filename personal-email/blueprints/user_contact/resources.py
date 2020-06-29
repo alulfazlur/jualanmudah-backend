@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import UserContact
-from blueprints import db, app, internal_required
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact_group.model import UserContactGroup
@@ -17,7 +17,7 @@ api = Api(bp_user_contact)
 
 class UserContactResource(Resource):
 
-    # @internal_required
+    # @staff_required
     def get(self, id=None):
         qry = UserContact.query.get(id)
         if qry is not None:
@@ -29,7 +29,7 @@ class UserContactResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @internal_required
+    # @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json', required=True)
@@ -45,7 +45,7 @@ class UserContactResource(Resource):
         app.logger.debug('DEBUG : %s', user_contact)
         return marshal(user_contact, UserContact.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @internal_required
+    # @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -64,7 +64,7 @@ class UserContactResource(Resource):
 
             return marshal(qry, UserContact.response_fields), 200
 
-    # @internal_required
+    # @staff_required
     def delete(self, id):
         qry = UserContact.query.get(id)
         if qry is None:

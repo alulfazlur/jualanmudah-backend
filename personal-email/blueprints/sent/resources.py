@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
-from .model import Sent
-from blueprints import db, app, internal_required
+from blueprints.sent.model import Sent
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact.model import UserContact
@@ -9,6 +9,7 @@ from blueprints.user_contact_group.model import UserContactGroup
 from blueprints.customer.model import Customer
 from blueprints.customer_group.model import CustomerGroup
 from blueprints.customer_member.model import CustomerMember
+from blueprints.tracking.model import Track
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 from blueprints import app
 from flask_mail import Mail
@@ -25,16 +26,8 @@ api = Api(bp_sent)
 
 class SentResource(Resource):
 
-    # fungsi buat get mail dari mailjet by mailjet_id
-    def getMailFromMailjet(self, mailjet_id):
-        api_key = '13601c8ae59de0bbcfedc3658f3376f1'
-        api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
-        mailjet = Client(auth=(api_key, api_secret), version='v3')
-        result = mailjet.message.get(1152921508360793791)
-        return result.status_code, result.json()
-
     # get all list draft and sent email
-    @internal_required
+    @staff_required
     def get(self, id=None):
         claims = get_jwt_claims()
         qry = Sent.query.filter_by(user_id=claims['id']).all()
@@ -59,7 +52,7 @@ class SentResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     # fungsi untuk mengirim email melalui mailjet
-    # FMAIL = MAIL_USERNAME
+    # @staff_required
     def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
         app.config.update(dict(
             DEBUG = True,
@@ -78,7 +71,7 @@ class SentResource(Resource):
     
 
     # send an email from draft
-    @internal_required
+    @staff_required
     def patch(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('sent_id', location='json')
@@ -120,18 +113,27 @@ class SentResource(Resource):
             qry_sent_member = CustomerMember.query.filter_by(group_id=qry.group_id)
 
             # send an email from flask mail 
+            # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
+            str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
+            content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
                 customer = customer.filter_by(id=member.customer_id).first()
                 marshalcustomer = marshal(customer, Customer.response_fields)
-                result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
-                , marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], args['content'])
+                result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
+                marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
+                content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+                print("+++++++++++++++++=======================-----------------")
+                print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+                track = Track(args['sent_id'], member.customer_id, "", "")
+                db.session.add(track)
+                db.session.commit()
             app.logger.debug('DEBUG : %s', qry)
             return marshal(qry, Sent.response_fields), 200
                 
 
     # post to draft
-    @internal_required
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('subject', location='json')
@@ -156,7 +158,7 @@ class SentResource(Resource):
         return marshal(sent, Sent.response_fields), 200
 
     
-    # @internal_required
+    @staff_required
     def delete(self, id):
         qry = Sent.query.get(id)
         if qry is None:
@@ -187,7 +189,7 @@ class SendMailDirect(Resource):
         return "Sent"
 
     # post and direct to sent mail from flask mail
-    @internal_required
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('subject', location='json', required=True)
@@ -231,13 +233,16 @@ class SendMailDirect(Resource):
             content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
             print("+++++++++++++++++=======================-----------------")
             print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+            track = Track(sent.id, member.customer_id, "", "")
+            db.session.add(track)
+            db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
 
 class getDraftById(Resource):
 
     # fungsi untuk get draft by id
-    @internal_required
+    @staff_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('draft_id', location='json')
@@ -252,33 +257,6 @@ class getDraftById(Resource):
         return {'status': 'NOT FOUND'}, 404
 
 
-class getTrackingMail(Resource):
-
-    # get tracking an email
-    @internal_required
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('sent_id', location='args')
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp']-args['rp'])
-        claims = get_jwt_claims()
-        qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        qry_sent = qry_sent.filter_by(id=args['sent_id']).first()
-        list_mail = qry_sent.mailjet_id
-        list_mail_id = list_mail.split('#')
-
-        rows = []
-        for index in range(1, args['rp']):
-            row = self.getMailFromMailjet(int(list_mail_id[index]))
-            rows.append(row)
-
-        return rows, 200
-
-
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '<id>')
-api.add_resource(getTrackingMail, '/tracking', '<id>')

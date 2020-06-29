@@ -16,7 +16,7 @@ from google.auth.transport.requests import Request
 # from blueprints.penjual.model import Penjual
 # from blueprints.produk_kategori.model import ProdukKategori
 # from sqlalchemy import desc
-# from blueprints import internal_required
+# from blueprints import staff_required
 # from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 # from blueprints import admin_required, seller_required, buyer_required
 
