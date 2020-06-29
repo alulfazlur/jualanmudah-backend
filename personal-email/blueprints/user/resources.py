@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import User
-from blueprints import db, app, internal_required
+from blueprints import db, app, leader_required
 from blueprints.firebase.upload import UploadToFirebase 
 from sqlalchemy import desc
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
@@ -17,7 +17,7 @@ api = Api(bp_user)
 
 class UserResource(Resource):
 
-    # @internal_required
+    # @staff_required
     def get(self, id=None):
         qry = User.query.get(id)
         if qry is not None:
@@ -26,7 +26,7 @@ class UserResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @internal_required
+    # @staff_required
     def post(self):
         
         parser = reqparse.RequestParser()
@@ -54,7 +54,7 @@ class UserResource(Resource):
         app.logger.debug('DEBUG : %s', user)
         return marshal(user, User.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @internal_required
+    # @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -81,7 +81,7 @@ class UserResource(Resource):
 
             return marshal(qry, User.response_fields), 200
 
-    # @internal_required
+    @leader_required
     def delete(self, id):
         qry = User.query.get(id)
         if qry is None:
@@ -97,7 +97,7 @@ class UserResource(Resource):
 #     def __init__(self):
 #         pass
 
-#     # @internal_required
+#     # @staff_required
 #     def get(self):
 #         parser = reqparse.RequestParser()
 #         parser.add_argument('p', type=int, location='args', default=1)

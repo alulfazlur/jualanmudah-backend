@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import hashlib
-from blueprints import db, internal_required
+from blueprints import db
 from ..user.model import User
 
 bp_auth = Blueprint('auth', __name__)
@@ -39,7 +39,6 @@ class CreateTokenResource(Resource):
 class RefreshTokenResource(Resource):
 
     @jwt_required
-    @internal_required
     def post(self):
         current_user = get_jwt_claims()
         token = create_access_token(identity=current_user)

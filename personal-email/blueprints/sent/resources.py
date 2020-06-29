@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import Sent
-from blueprints import db, app, internal_required
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact.model import UserContact
@@ -24,7 +24,7 @@ api = Api(bp_sent)
 
 
 class SentResource(Resource):
-    
+
     # get all list draft and sent email
     @staff_required
     def get(self, id=None):

@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import CustomerMember
-from blueprints import db, app, internal_required
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.customer_group.model import CustomerGroup
@@ -18,7 +18,7 @@ api = Api(bp_customer_member)
 
 class CustomerMemberResource(Resource):
 
-    @internal_required
+    @staff_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('group_id', location='json')
