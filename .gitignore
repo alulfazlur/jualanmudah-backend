@@ -129,7 +129,10 @@ dmypy.json
 .pyre/
 
 
+
 #migrations
 migrations/
 /migrations
+
+#this is developer
 
