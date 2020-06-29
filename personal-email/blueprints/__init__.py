@@ -37,17 +37,38 @@ jwt = JWTManager(app)
 def hello():
     return {"status": "OK"}, 200
 
-def internal_required(fn):
+def admin_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt_claims()
-        if not claims['status']:
-            return {'status': 'FORBIDDEN', 'message': 'Internal Only!'}, 403
+        if claims['status'] != "admin":
+            return {'status': 'FORBIDDEN', 'message': 'Admin Only!'}, 403
         else:
             return fn(*args, **kwargs)
     return wrapper
 
+def leader_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request()
+        claims = get_jwt_claims()
+        if claims['status'] != "leader":
+            return {'status': 'FORBIDDEN', 'message': 'leader Only!'}, 403
+        else:
+            return fn(*args, **kwargs)
+    return wrapper
+
+def staff_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request()
+        claims = get_jwt_claims()
+        if claims['status'] != "staff" :
+            return {'status': 'FORBIDDEN', 'message': 'Internal Only!'}, 403
+        else:
+            return fn(*args, **kwargs)
+    return wrapper
 
 if os.environ.get('FLASK_ENV', 'Production') == "Production":
     app.config.from_object(config.ProductionConfig)

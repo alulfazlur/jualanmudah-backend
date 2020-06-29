@@ -11,7 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False, default=20)
     salt = db.Column(db.String(255))
-    status = db.Column(db.Boolean, default=False, nullable=True)
+    status =db.Column(db.String(50), nullable=False)
     address = db.Column(db.String(255), nullable=False) 
     position = db.Column(db.String(50), nullable=False)
     user_image =  db.Column(db.String(2000), nullable=False)
@@ -37,7 +37,7 @@ class User(db.Model):
     jwt_claim_fields = {
         'id': fields.Integer,
         'username': fields.String,
-        'status': fields.Boolean
+        'status': fields.String
     }
     def __init__(self, full_name, username,password,salt,status,address,position,user_image):
         

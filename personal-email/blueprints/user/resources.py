@@ -34,7 +34,7 @@ class UserResource(Resource):
         parser.add_argument('username', location='form', required=True)
         parser.add_argument('password', location='form',
                             required=True)
-        parser.add_argument('status',type=bool, location='form')
+        parser.add_argument('status', location='form', choices=["admin","leader","staff"])
         parser.add_argument('address', location='form', required=True)
         parser.add_argument('position', location='form', required=True)
         parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
