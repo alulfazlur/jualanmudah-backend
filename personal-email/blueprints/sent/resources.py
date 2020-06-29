@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
-from .model import Sent
+from blueprints.sent.model import Sent
 from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
@@ -52,7 +52,7 @@ class SentResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     # fungsi untuk mengirim email melalui mailjet
-    @staff_required
+    # @staff_required
     def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
         app.config.update(dict(
             DEBUG = True,
@@ -114,7 +114,7 @@ class SentResource(Resource):
 
             # send an email from flask mail 
             # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
-            str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+            str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
@@ -125,7 +125,7 @@ class SentResource(Resource):
                 content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
                 print("+++++++++++++++++=======================-----------------")
                 print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
-                track = Track(sent.id, member.customer_id, "", "")
+                track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
             app.logger.debug('DEBUG : %s', qry)
@@ -180,7 +180,10 @@ class SendMailDirect(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',{'status': 'NOT_FOUND'}, 404
+            MAIL_PASSWORD = 'bountyhunter',
+        ))
+        mail = Mail(app)
+        msg = Message(subject, sender = fmail, recipients = [tmail])
         msg.html = HTMLmessage
         mail.send(msg)
         return "Sent"

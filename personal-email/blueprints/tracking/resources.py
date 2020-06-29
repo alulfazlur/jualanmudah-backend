@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
-from .model import Sent
+from blueprints.sent.model import Sent
 from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.tracking.model import Track
@@ -70,6 +70,7 @@ class TrackClick(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
+api.add_resource(TrackList, '', '<id>')
 api.add_resource(TrackOpen, '/open', '<id>')
 api.add_resource(TrackClick, '/click', '<id>')
 
