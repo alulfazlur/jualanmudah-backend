@@ -182,7 +182,6 @@ class SendMailDirect(Resource):
         ))
         mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
-        # msg.body = text
         msg.html = HTMLmessage
         mail.send(msg)
         return "Sent"
@@ -209,17 +208,6 @@ class SendMailDirect(Resource):
         from_mail = from_mail.filter_by(contact_group_id=args['contact_id']).first()
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
-        # determine email address customer from customer table
-        qry_sent_member = CustomerMember.query.filter_by(group_id=args['group_id'])
-
-        # send an email from flask mail 
-        for member in qry_sent_member:
-            customer = Customer.query.filter_by(user_id=claims['id'])
-            customer = customer.filter_by(id=member.customer_id).first()
-            marshalcustomer = marshal(customer, Customer.response_fields)
-            result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
-            , marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], args['content'])
-
         # save to database
         status = "sent"
         sent = Sent(user_id, status, args['subject'], args['content'], args['device'],
@@ -227,6 +215,22 @@ class SendMailDirect(Resource):
         db.session.add(sent)
         db.session.commit()
 
+        # determine email address customer from customer table
+        qry_sent_member = CustomerMember.query.filter_by(group_id=args['group_id'])
+
+        # send an email from flask mail 
+        # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
+        str_get = "<img src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+        content = args['content'] + str_get
+        for member in qry_sent_member:
+            customer = Customer.query.filter_by(user_id=claims['id'])
+            customer = customer.filter_by(id=member.customer_id).first()
+            marshalcustomer = marshal(customer, Customer.response_fields)
+            result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
+            marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
+            content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+            print("+++++++++++++++++=======================-----------------")
+            print(content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
 
@@ -250,15 +254,7 @@ class getDraftById(Resource):
 
 class getTrackingMail(Resource):
 
-    # fungsi buat get mail dari mailjet by mailjet_id
-    def getMailFromMailjet(self, mailjet_id):
-        api_key = '13601c8ae59de0bbcfedc3658f3376f1'
-        api_secret = 'b627d9619dd1e5c1f25b9b33ad684c5f'
-        mailjet = Client(auth=(api_key, api_secret), version='v3')
-        result = mailjet.message.get(1152921508360793791)
-        return result.status_code, result.json()
-
-    # fungsi untuk get list sent all mail dari  mailjet
+    # get tracking an email
     @internal_required
     def get(self):
         parser = reqparse.RequestParser()
