@@ -9,6 +9,7 @@ from blueprints.user_contact_group.model import UserContactGroup
 from blueprints.customer.model import Customer
 from blueprints.customer_group.model import CustomerGroup
 from blueprints.customer_member.model import CustomerMember
+from blueprints.tracking.model import Track
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 from blueprints import app
 from flask_mail import Mail
@@ -112,12 +113,21 @@ class SentResource(Resource):
             qry_sent_member = CustomerMember.query.filter_by(group_id=qry.group_id)
 
             # send an email from flask mail 
+            # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
+            str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+            content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
                 customer = customer.filter_by(id=member.customer_id).first()
                 marshalcustomer = marshal(customer, Customer.response_fields)
-                result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name']
-                , marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], args['content'])
+                result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
+                marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
+                content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+                print("+++++++++++++++++=======================-----------------")
+                print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+                track = Track(sent.id, member.customer_id, "", "")
+                db.session.add(track)
+                db.session.commit()
             app.logger.debug('DEBUG : %s', qry)
             return marshal(qry, Sent.response_fields), 200
                 
@@ -220,6 +230,9 @@ class SendMailDirect(Resource):
             content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
             print("+++++++++++++++++=======================-----------------")
             print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+            track = Track(sent.id, member.customer_id, "", "")
+            db.session.add(track)
+            db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
 

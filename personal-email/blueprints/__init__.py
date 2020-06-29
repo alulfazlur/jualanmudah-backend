@@ -140,7 +140,8 @@ app.register_blueprint(bp_flaskmail, url_prefix='/flaskmail')
 from blueprints.sent.resources import bp_sent
 app.register_blueprint(bp_sent, url_prefix='/sent' )
 
-
+from blueprints.tracking.resources import bp_track
+app.register_blueprint(bp_track, url_prefix='/track')
 
 
 
