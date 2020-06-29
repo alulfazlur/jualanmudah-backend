@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import UserContactGroup
-from blueprints import db, app, internal_required
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
@@ -16,7 +16,7 @@ api = Api(bp_user_contact_group)
 
 class UserContactGroupResource(Resource):
 
-    # @internal_required
+    # @staff_required
     def get(self, id=None):
         qry = UserContactGroup.query.get(id)
         if qry is not None:
@@ -24,7 +24,7 @@ class UserContactGroupResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @internal_required
+    # @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json', required=True)
@@ -39,7 +39,7 @@ class UserContactGroupResource(Resource):
         app.logger.debug('DEBUG : %s', user_contact)
         return marshal(user_contact, UserContactGroup.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @internal_required
+    # @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -57,7 +57,7 @@ class UserContactGroupResource(Resource):
 
             return marshal(qry, UserContactGroup.response_fields), 200
 
-    # @internal_required
+    # @staff_required
     def delete(self, id):
         qry = UserContactGroup.query.get(id)
         if qry is None:
