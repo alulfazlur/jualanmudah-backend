@@ -17,6 +17,7 @@ class Sent(db.Model):
     group_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
+    track = db.relationship('Track', backref='sent', lazy=True)
     
     response_fields = {
         'id': fields.Integer,

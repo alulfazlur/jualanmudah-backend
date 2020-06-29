@@ -7,27 +7,18 @@ from sqlalchemy.orm import relationship
 class Track(db.Model):
     __tablename__ = "track"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer)
-    send_date = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
-    status = db.Column(db.String(50))
-    subject = db.Column(db.String(2000))
-    content = db.Column(db.Text, nullable= False)
-    device = db.Column(db.String(50))
-    contact_id = db.Column(db.Integer)
-    group_id = db.Column(db.Integer)
+    sent_id = db.Column(db.Integer, db.ForeignKey('sent.id'))
+    customer_id = db.Column(db.Integer)
+    status_open = db.Column(db.String(50))
+    status_click = db.Column(db.String(50))
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     
     response_fields = {
         'id': fields.Integer,
-        'user_id': fields.Integer,
-        'send_date': fields.DateTime,
-        'status': fields.String,
-        'subject': fields.String,
-        'content': fields.String,
-        'device' : fields.String,
-        'contact_id': fields.Integer,
-        'group_id': fields.Integer,
+        'sent_id': fields.Integer,
+        'customer_id':
+
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
 
