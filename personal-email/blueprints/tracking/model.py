@@ -31,4 +31,4 @@ class Track(db.Model):
         self.status_click = status_click
 
     def __repr__(self):
-        return '<Sent %r>' % self.id
+        return '<Track %r>' % self.id

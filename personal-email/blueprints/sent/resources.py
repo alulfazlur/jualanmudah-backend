@@ -170,10 +170,7 @@ class SendMailDirect(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',
-        ))
-        mail = Mail(app)
-        msg = Message(subject, sender = fmail, recipients = [tmail])
+            MAIL_PASSWORD = 'bountyhunter',{'status': 'NOT_FOUND'}, 404
         msg.html = HTMLmessage
         mail.send(msg)
         return "Sent"
