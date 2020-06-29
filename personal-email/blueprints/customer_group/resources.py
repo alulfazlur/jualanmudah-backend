@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import CustomerGroup
-from blueprints import db, app, internal_required
+from blueprints import db, app, staff_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact_group.model import UserContactGroup
@@ -16,7 +16,7 @@ api = Api(bp_customer_group)
 
 class CustomerGroupResource(Resource):
 
-    # @internal_required
+    # @staff_required
     def get(self, id=None):
         qry = CustomerGroup.query.get(id)
         if qry is not None:

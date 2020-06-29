@@ -1,11 +1,12 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import User
-from blueprints import db, app, internal_required
+from blueprints import db, app, leader_required
+from blueprints.firebase.upload import UploadToFirebase 
 from sqlalchemy import desc
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import uuid
-import hashlib
+import hashlib,werkzeug
 
 
 bp_user = Blueprint('user', __name__)
@@ -16,7 +17,7 @@ api = Api(bp_user)
 
 class UserResource(Resource):
 
-    # @internal_required
+    # @staff_required
     def get(self, id=None):
         qry = User.query.get(id)
         if qry is not None:
@@ -25,24 +26,27 @@ class UserResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @internal_required
+    # @staff_required
     def post(self):
         
         parser = reqparse.RequestParser()
-        parser.add_argument('full_name', location='json', required=True)
-        parser.add_argument('username', location='json', required=True)
-        parser.add_argument('password', location='json',
+        parser.add_argument('full_name', location='form', required=True)
+        parser.add_argument('username', location='form', required=True)
+        parser.add_argument('password', location='form',
                             required=True)
-        parser.add_argument('status',type=bool, location='json')
-        parser.add_argument('address', location='json', required=True)
-        parser.add_argument('position', location='json', required=True)
+        parser.add_argument('status', location='form', choices=["admin","leader","staff"])
+        parser.add_argument('address', location='form', required=True)
+        parser.add_argument('position', location='form', required=True)
+        parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
         args = parser.parse_args()
-
+        image = args['user_image']
+        upload_image = UploadToFirebase ()
+        link = upload_image.UploadImage(image,"user_image")
         salt = uuid.uuid4().hex
         hash_pass = hashlib.sha512(
             ('%s%s' % (args['password'], salt)).encode('utf-8')).hexdigest()
         user = User(args['full_name'],
-                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'])
+                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'],link)
 
         db.session.add(user)
         db.session.commit()
@@ -50,7 +54,7 @@ class UserResource(Resource):
         app.logger.debug('DEBUG : %s', user)
         return marshal(user, User.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @internal_required
+    # @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -77,7 +81,7 @@ class UserResource(Resource):
 
             return marshal(qry, User.response_fields), 200
 
-    # @internal_required
+    @leader_required
     def delete(self, id):
         qry = User.query.get(id)
         if qry is None:
@@ -93,7 +97,7 @@ class UserResource(Resource):
 #     def __init__(self):
 #         pass
 
-#     # @internal_required
+#     # @staff_required
 #     def get(self):
 #         parser = reqparse.RequestParser()
 #         parser.add_argument('p', type=int, location='args', default=1)
