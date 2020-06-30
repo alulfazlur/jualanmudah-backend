@@ -35,9 +35,10 @@ class UserContactResource(Resource):
         parser.add_argument('user_id', location='json', required=True)
         parser.add_argument('contact_id', location='json', required=True)
         parser.add_argument('email_or_wa', location='json',required=True)
+        parser.add_argument('password', location='json')
         args = parser.parse_args()
 
-        user_contact = UserContact(args['user_id'],args['contact_id'],  args['email_or_wa'])
+        user_contact = UserContact(args['user_id'],args['contact_id'],args['email_or_wa'],args['password'])
 
         db.session.add(user_contact)
         db.session.commit()
@@ -56,10 +57,12 @@ class UserContactResource(Resource):
             parser.add_argument('user_id', location='json', required=True)
             parser.add_argument('contact_id', location='json', required=True)
             parser.add_argument('email_or_wa', location='json',required=True)
+            parser.add_argument('password', location='json')
             args = parser.parse_args()
             qry.user_id = args['user_id']
             qry.contact_id = args['contact_id']
-            qry.email_or_wa = args['email_or_wa']  
+            qry.email_or_wa = args['email_or_wa']
+            qry.password = args['password']
             db.session.commit()
 
             return marshal(qry, UserContact.response_fields), 200
