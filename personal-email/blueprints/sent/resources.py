@@ -300,9 +300,25 @@ class getAllSent(Resource):
         claims = get_jwt_claims()
         qry = Sent.query.filter_by(user_id=claims['id'])
         qry = qry.filter_by(status="sent")
+     
         rows = []
         if qry is not None:
             for sent in qry:
+                qry_track = Track.query.filter_by(sent_id=sent.id)
+                # if qry_track is not None:
+                count_open_rate = 0
+                count_click_rate = 0
+                count_total = 0
+                for track in qry_track:
+                    count_total += 1
+                    if track.status_open == "opened":
+                        count_open_rate += 1
+                    elif track.status_click == "clicked":
+                        count_click_rate += 1
+                sent.open_rate = str(count_click_rate) + "/" + str(count_total)
+                sent.click_rate = str(count_click_rate) + "/" + str(count_total)
+                db.session.commit()
+
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
                 array_customer = []
@@ -312,10 +328,11 @@ class getAllSent(Resource):
                     array_customer.append(customer)
                 qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
-                sent = marshal(sent, Sent.response_fields)
-                sent['group_customer'] = marshal_group
-                sent['customer'] =array_customer
-                rows.append(sent)
+                marshal_sent = marshal(sent, Sent.response_fields)
+                marshal_sent['group_customer'] = marshal_group
+                marshal_sent['customer'] =array_customer
+                rows.append(marshal_sent)
+
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
