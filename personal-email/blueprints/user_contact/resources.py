@@ -78,7 +78,7 @@ class UserContactResource(Resource):
     def options(self):
         return {}, 200
 
-class ListContactGroup(Resource):
+class ListUserContact(Resource):
 
     @staff_required
     def get(self):
@@ -94,10 +94,10 @@ class ListContactGroup(Resource):
         
         rows = []
         for row in qry_user_contact.limit(args['rp']).offset(offset).all():
-            qry = UserContactGroup.query.filter_by(id=row.contact_group_id)
-            contact_group_list = (marshal(row, UserContact.response_fields))
-            rows.append(contact_group_list) 
+            user_contact_list = (marshal(row, UserContact.response_fields))
+            rows.append(user_contact_list) 
 
         return rows, 200
 
 api.add_resource(UserContactResource, '', '/<id>')
+api.add_resource(ListUserContact, '/list', '/<id>')

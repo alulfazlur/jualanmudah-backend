@@ -69,7 +69,7 @@ class UserContactGroupResource(Resource):
     def options(self):
         return {}, 200
 
-class ListContactGroup(Resource):
+class ListContactGroupAll(Resource):
 
     # get all contact group
     @staff_required
@@ -87,8 +87,32 @@ class ListContactGroup(Resource):
         for row in qry.limit(args['rp']).offset(offset).all():
             group = (marshal(row, UserContactGroup.response_fields))
             rows.append(group) 
-
         return rows, 200
+
+class ListContactGroup(Resource):
+
+    # get all contact group
+    @staff_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+        parser.add_argument('user_group_id', location='args')
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        claims = get_jwt_claims()
+        qry_group = UserContactGroup.query.filter_by(id=args['user_group_id']).first()
+        marshalgroup = marshal(qry_group, UserContactGroup.response_fields)
+        qry_contact = UserContact.query.filter_by(contact_group_id=args['user_group_id'])
+        qry_contact = qry_contact.filter_by(user_id=claims['id'])
+        rows = []
+        for row in qry_contact.limit(args['rp']).offset(offset).all():
+            contact_user = (marshal(row, UserContact.response_fields))
+            rows.append(contact_user) 
+        marshalgroup['contact'] = rows
+        return marshalgroup, 200
 
 api.add_resource(UserContactGroupResource, '', '/<id>')
 api.add_resource(ListContactGroup, '/list', '/<id>')
