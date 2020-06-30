@@ -256,7 +256,63 @@ class getDraftById(Resource):
             return marshal(qry_draft, Sent.response_fields), 200
         return {'status': 'NOT FOUND'}, 404
 
+class getAllDraft(Resource):
+
+    # get all list only draft 
+    @staff_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry = Sent.query.filter_by(user_id=claims['id'])
+        qry = qry.filter_by(status="draft")
+        rows = []
+        if qry is not None:
+            for sent in qry:
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                array_customer = []
+                for customer in qry_member:
+                    customer = Customer.query.filter_by(id=customer.customer_id).first()
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                sent = marshal(sent, Sent.response_fields)
+                sent['group_customer'] = marshal_group
+                sent['customer'] =array_customer
+                rows.append(sent)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
+class getAllSent(Resource):
+
+    # get all list only draft 
+    @staff_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry = Sent.query.filter_by(user_id=claims['id'])
+        qry = qry.filter_by(status="sent")
+        rows = []
+        if qry is not None:
+            for sent in qry:
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                array_customer = []
+                for customer in qry_member:
+                    customer = Customer.query.filter_by(id=customer.customer_id).first()
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                sent = marshal(sent, Sent.response_fields)
+                sent['group_customer'] = marshal_group
+                sent['customer'] =array_customer
+                rows.append(sent)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
 
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '<id>')
+api.add_resource(getAllDraft, '/draft-list', '<id>')
+api.add_resource(getAllSent, '/sent-list', '<id>')
