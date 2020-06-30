@@ -106,7 +106,7 @@ class SentResource(Resource):
             
             # determine email address from user contact table
             from_mail = UserContact.query.filter_by(user_id=claims['id'])
-            from_mail = from_mail.filter_by(contact_group_id=qry.contact_id).first()
+            from_mail = from_mail.filter_by(id=qry.contact_id).first()
             marshaluserMail= marshal(from_mail, UserContact.response_fields)
             
             # determine email address customer from customer table
@@ -207,7 +207,7 @@ class SendMailDirect(Resource):
         
         # determine email address from user contact table
         from_mail = UserContact.query.filter_by(user_id=claims['id'])
-        from_mail = from_mail.filter_by(contact_group_id=args['contact_id']).first()
+        from_mail = from_mail.filter_by(id=args['contact_id']).first()
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
         # save to database

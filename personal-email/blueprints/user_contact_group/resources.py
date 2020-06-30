@@ -91,7 +91,7 @@ class ListContactGroupAll(Resource):
 
 class ListContactGroup(Resource):
 
-    # get all contact group
+    # get all contact group + contact user
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
@@ -116,3 +116,4 @@ class ListContactGroup(Resource):
 
 api.add_resource(UserContactGroupResource, '', '/<id>')
 api.add_resource(ListContactGroup, '/list', '/<id>')
+api.add_resource(ListContactGroupAll, '/list-all', '/<id>')
