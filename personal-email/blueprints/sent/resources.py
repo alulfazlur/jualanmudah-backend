@@ -89,14 +89,22 @@ class SentResource(Resource):
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
         else:
-            qry.sent_id = args['sent_id']
-            qry.user_id = claims['id']
-            qry.status = args['status']
-            qry.subject = args['subject']
-            qry.content = args['content']
-            qry.device = args['device']
-            qry.contact_id = args['contact_id']
-            qry.group_id = args['group_id']
+            if args['sent_id'] is not None:
+                qry.sent_id = args['sent_id']
+            if claims['id'] is not None:
+                qry.user_id = claims['id']
+            if args['status'] is not None:
+                qry.status = args['status']
+            if args['subject'] is not None:
+                qry.subject = args['subject']
+            if args['content'] is not None:
+                qry.content = args['content']
+            if args['device'] is not None:
+                qry.device = args['device']
+            if args['contact_id'] is not None:
+                qry.contact_id = args['contact_id']
+            if args['group_id'] is not None:
+                qry.group_id = args['group_id']
 
             db.session.commit()
 
