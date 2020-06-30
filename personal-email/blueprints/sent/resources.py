@@ -158,7 +158,7 @@ class SentResource(Resource):
         user_id = user_id.id
 
         sent = Sent(user_id, args['status'], args['subject'], args['content'],
-        args['device'], args['contact_id'], args['group_id'])
+        args['device'], args['contact_id'], args['group_id'], "", "")
 
         db.session.add(sent)
         db.session.commit()
