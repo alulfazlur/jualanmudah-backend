@@ -222,7 +222,7 @@ class SendMailDirect(Resource):
         
         # save to database
         sent = Sent(user_id, args['status'], args['subject'], args['content'], args['device'],
-        args['contact_id'], args['group_id'])
+        args['contact_id'], args['group_id'], "", "")
         db.session.add(sent)
         db.session.commit()
 
