@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
+from blueprints.user_contact.model import UserContact
 from .model import UserContactGroup
 from blueprints import db, app, staff_required
 from sqlalchemy import desc
@@ -68,6 +69,26 @@ class UserContactGroupResource(Resource):
     def options(self):
         return {}, 200
 
+class ListContactGroup(Resource):
 
+    # get all contact group
+    @staff_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        claims = get_jwt_claims()
+        qry = UserContactGroup.query
+        rows = []
+        for row in qry.limit(args['rp']).offset(offset).all():
+            group = (marshal(row, UserContactGroup.response_fields))
+            rows.append(group) 
+
+        return rows, 200
 
 api.add_resource(UserContactGroupResource, '', '/<id>')
+api.add_resource(ListContactGroup, '/list', '/<id>')
