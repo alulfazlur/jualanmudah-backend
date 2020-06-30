@@ -74,6 +74,7 @@ class SentResource(Resource):
     @staff_required
     def patch(self, id=None):
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json')
         parser.add_argument('sent_id', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
@@ -90,7 +91,7 @@ class SentResource(Resource):
         else:
             qry.sent_id = args['sent_id']
             qry.user_id = claims['id']
-            qry.status = "sent"
+            qry.status = args['status']
             qry.subject = args['subject']
             qry.content = args['content']
             qry.device = args['device']
@@ -136,6 +137,7 @@ class SentResource(Resource):
     @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
         parser.add_argument('device', location='json')
@@ -147,8 +149,7 @@ class SentResource(Resource):
         user_id = User.query.filter_by(id=claims['id']).first()
         user_id = user_id.id
 
-        status = "draft"
-        sent = Sent(user_id, status, args['subject'], args['content'],
+        sent = Sent(user_id, args['status'], args['subject'], args['content'],
         args['device'], args['contact_id'], args['group_id'])
 
         db.session.add(sent)
@@ -192,6 +193,7 @@ class SendMailDirect(Resource):
     @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json', required=True)
         parser.add_argument('subject', location='json', required=True)
         parser.add_argument('content', location='json', required=True)
         parser.add_argument('device', location='json', required=True)
@@ -211,8 +213,7 @@ class SendMailDirect(Resource):
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
         # save to database
-        status = "sent"
-        sent = Sent(user_id, status, args['subject'], args['content'], args['device'],
+        sent = Sent(user_id, args['status'], args['subject'], args['content'], args['device'],
         args['contact_id'], args['group_id'])
         db.session.add(sent)
         db.session.commit()
