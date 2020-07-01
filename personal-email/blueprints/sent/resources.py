@@ -231,7 +231,7 @@ class SendMailDirect(Resource):
 
         # send an email from flask mail 
         # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
-        str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+        str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
             customer = Customer.query.filter_by(user_id=claims['id'])
@@ -239,9 +239,9 @@ class SendMailDirect(Resource):
             marshalcustomer = marshal(customer, Customer.response_fields)
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
             print("+++++++++++++++++=======================-----------------")
-            print(content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+            print(content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
@@ -303,22 +303,25 @@ class getAllSent(Resource):
      
         rows = []
         if qry is not None:
+            track_list = []
             for sent in qry:
                 qry_track = Track.query.filter_by(sent_id=sent.id)
                 # if qry_track is not None:
                 count_open_rate = 0
                 count_click_rate = 0
                 count_total = 0
+                track_list = []
                 for track in qry_track:
                     count_total += 1
                     if track.status_open == "opened":
                         count_open_rate += 1
                     elif track.status_click == "clicked":
                         count_click_rate += 1
+                    marshaltrack = marshal(track, Track.response_fields)
+                    track_list.append(marshaltrack)
                 sent.open_rate = str(count_click_rate) + "/" + str(count_total)
                 sent.click_rate = str(count_click_rate) + "/" + str(count_total)
                 db.session.commit()
-
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
                 array_customer = []
@@ -330,8 +333,10 @@ class getAllSent(Resource):
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                 marshal_sent = marshal(sent, Sent.response_fields)
                 marshal_sent['group_customer'] = marshal_group
-                marshal_sent['customer'] =array_customer
+                marshal_sent['customer'] = array_customer
+                marshal_sent['track'] = track_list
                 rows.append(marshal_sent)
+            
 
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
