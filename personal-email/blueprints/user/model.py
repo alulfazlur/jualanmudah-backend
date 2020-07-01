@@ -20,6 +20,7 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     customer = db.relationship('Customer', backref='user', lazy=True)
     user_contact = db.relationship('UserContact', backref='user', lazy=True)
+    leader_id = db.Column(db.Integer)
 
     response_fields = {
         'id': fields.Integer,
@@ -32,6 +33,7 @@ class User(db.Model):
         'user_image' : fields.String,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
+        'leader_id': fields.Integer
       
     }
     jwt_claim_fields = {
@@ -39,7 +41,7 @@ class User(db.Model):
         'username': fields.String,
         'status': fields.String
     }
-    def __init__(self, full_name, username,password,salt,status,address,position,user_image):
+    def __init__(self, full_name, username, password, salt, status, address, position, user_image, leader_id):
         
         self.full_name = full_name
         self.username = username
@@ -49,6 +51,7 @@ class User(db.Model):
         self.address = address
         self.position = position
         self.user_image = user_image
+        self.leader_id = leader_id
 
     def __repr__(self):
         return '<User %r>' % self.id
