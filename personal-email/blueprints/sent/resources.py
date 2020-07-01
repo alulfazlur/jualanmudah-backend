@@ -14,6 +14,8 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_cl
 from blueprints import app
 from flask_mail import Mail
 from flask_mail import Message
+import datetime
+import time
 
 from mailjet_rest import Client
 import os
@@ -75,6 +77,7 @@ class SentResource(Resource):
     def patch(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('status', location='json')
+        parser.add_argument('send_date', location='json')
         parser.add_argument('sent_id', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
@@ -95,6 +98,7 @@ class SentResource(Resource):
                 qry.user_id = claims['id']
             if args['status'] is not None:
                 qry.status = args['status']
+            if args[]
             if args['subject'] is not None:
                 qry.subject = args['subject']
             if args['content'] is not None:
@@ -123,6 +127,22 @@ class SentResource(Resource):
 
             # send an email from flask mail 
             # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
+            if len(args['send_date'])>5:
+                senddate = args['send_date'].split(',')
+                year = int(senddate[0])
+                month = int(senddate[1])
+                day = int(senddate[2])
+                hour = int(senddate[3])
+                mins = int(senddate[4])
+                sec = int(senddate[5])
+                sent_time = datetime.datetime(year,month,day,hour,mins,sec)
+                time.sleep(sent_time.timestamp()- time.time())
+            elif args['send_date'] == "now":
+                sent.send_date = str(datetime.datetime.now())
+                print("===================_____________________ ")
+                print(sent.send_date)
+                db.session.commit()
+                pass
             str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
@@ -202,6 +222,7 @@ class SendMailDirect(Resource):
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('status', location='json', required=True)
+        parser.add_argument('send_date', location='json', required=True)
         parser.add_argument('subject', location='json', required=True)
         parser.add_argument('content', location='json', required=True)
         parser.add_argument('device', location='json', required=True)
@@ -221,16 +242,34 @@ class SendMailDirect(Resource):
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
         # save to database
-        sent = Sent(user_id, args['status'], args['subject'], args['content'], args['device'],
+
+        sent = Sent(user_id, args['status'], args['send_date'], args['subject'], args['content'], args['device'],
         args['contact_id'], args['group_id'], "", "")
         db.session.add(sent)
         db.session.commit()
 
         # determine email address customer from customer table
         qry_sent_member = CustomerMember.query.filter_by(group_id=args['group_id'])
+       
 
         # send an email from flask mail 
         # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
+        if len(args['send_date'])>5:
+            senddate = args['send_date'].split(',')
+            year = int(senddate[0])
+            month = int(senddate[1])
+            day = int(senddate[2])
+            hour = int(senddate[3])
+            mins = int(senddate[4])
+            sec = int(senddate[5])
+            sent_time = datetime.datetime(year,month,day,hour,mins,sec)
+            time.sleep(sent_time.timestamp()- time.time())
+        elif args['send_date'] == "now":
+            sent.send_date = str(datetime.datetime.now())
+            print("===================_____________________ ")
+            print(sent.send_date)
+            db.session.commit()
+            pass
         str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
@@ -344,6 +383,6 @@ class getAllSent(Resource):
 
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
-api.add_resource(getDraftById, '/draft', '<id>')
-api.add_resource(getAllDraft, '/draft-list', '<id>')
-api.add_resource(getAllSent, '/sent-list', '<id>')
+api.add_resource(getDraftById, '/draft', '/<id>')
+api.add_resource(getAllDraft, '/draft-list', '/<id>')
+api.add_resource(getAllSent, '/sent-list', '/<id>')
