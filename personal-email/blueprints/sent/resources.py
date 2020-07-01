@@ -74,6 +74,7 @@ class SentResource(Resource):
     @staff_required
     def patch(self, id=None):
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json')
         parser.add_argument('sent_id', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
@@ -88,14 +89,22 @@ class SentResource(Resource):
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
         else:
-            qry.sent_id = args['sent_id']
-            qry.user_id = claims['id']
-            qry.status = "sent"
-            qry.subject = args['subject']
-            qry.content = args['content']
-            qry.device = args['device']
-            qry.contact_id = args['contact_id']
-            qry.group_id = args['group_id']
+            if args['sent_id'] is not None:
+                qry.sent_id = args['sent_id']
+            if claims['id'] is not None:
+                qry.user_id = claims['id']
+            if args['status'] is not None:
+                qry.status = args['status']
+            if args['subject'] is not None:
+                qry.subject = args['subject']
+            if args['content'] is not None:
+                qry.content = args['content']
+            if args['device'] is not None:
+                qry.device = args['device']
+            if args['contact_id'] is not None:
+                qry.contact_id = args['contact_id']
+            if args['group_id'] is not None:
+                qry.group_id = args['group_id']
 
             db.session.commit()
 
@@ -106,7 +115,7 @@ class SentResource(Resource):
             
             # determine email address from user contact table
             from_mail = UserContact.query.filter_by(user_id=claims['id'])
-            from_mail = from_mail.filter_by(contact_group_id=qry.contact_id).first()
+            from_mail = from_mail.filter_by(id=qry.contact_id).first()
             marshaluserMail= marshal(from_mail, UserContact.response_fields)
             
             # determine email address customer from customer table
@@ -114,7 +123,7 @@ class SentResource(Resource):
 
             # send an email from flask mail 
             # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
-            str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
+            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
@@ -124,7 +133,7 @@ class SentResource(Resource):
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
                 content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
                 print("+++++++++++++++++=======================-----------------")
-                print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+                print(content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -136,6 +145,7 @@ class SentResource(Resource):
     @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
         parser.add_argument('device', location='json')
@@ -147,9 +157,8 @@ class SentResource(Resource):
         user_id = User.query.filter_by(id=claims['id']).first()
         user_id = user_id.id
 
-        status = "draft"
-        sent = Sent(user_id, status, args['subject'], args['content'],
-        args['device'], args['contact_id'], args['group_id'])
+        sent = Sent(user_id, args['status'], args['subject'], args['content'],
+        args['device'], args['contact_id'], args['group_id'], "", "")
 
         db.session.add(sent)
         db.session.commit()
@@ -192,6 +201,7 @@ class SendMailDirect(Resource):
     @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
+        parser.add_argument('status', location='json', required=True)
         parser.add_argument('subject', location='json', required=True)
         parser.add_argument('content', location='json', required=True)
         parser.add_argument('device', location='json', required=True)
@@ -207,13 +217,12 @@ class SendMailDirect(Resource):
         
         # determine email address from user contact table
         from_mail = UserContact.query.filter_by(user_id=claims['id'])
-        from_mail = from_mail.filter_by(contact_group_id=args['contact_id']).first()
+        from_mail = from_mail.filter_by(id=args['contact_id']).first()
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
         # save to database
-        status = "sent"
-        sent = Sent(user_id, status, args['subject'], args['content'], args['device'],
-        args['contact_id'], args['group_id'])
+        sent = Sent(user_id, args['status'], args['subject'], args['content'], args['device'],
+        args['contact_id'], args['group_id'], "", "")
         db.session.add(sent)
         db.session.commit()
 
@@ -222,7 +231,7 @@ class SendMailDirect(Resource):
 
         # send an email from flask mail 
         # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
-        str_get = "<img style='display: none'; src='https://lolbe.perintiscerita.shop/response/sent_id=" + str(sent.id)
+        str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
             customer = Customer.query.filter_by(user_id=claims['id'])
@@ -230,9 +239,9 @@ class SendMailDirect(Resource):
             marshalcustomer = marshal(customer, Customer.response_fields)
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
             print("+++++++++++++++++=======================-----------------")
-            print(content + "/customer_id=" + str(marshalcustomer['id']) + "'/>")
+            print(content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
@@ -256,7 +265,85 @@ class getDraftById(Resource):
             return marshal(qry_draft, Sent.response_fields), 200
         return {'status': 'NOT FOUND'}, 404
 
+class getAllDraft(Resource):
+
+    # get all list only draft 
+    @staff_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry = Sent.query.filter_by(user_id=claims['id'])
+        qry = qry.filter_by(status="draft")
+        rows = []
+        if qry is not None:
+            for sent in qry:
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                array_customer = []
+                for customer in qry_member:
+                    customer = Customer.query.filter_by(id=customer.customer_id).first()
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                sent = marshal(sent, Sent.response_fields)
+                sent['group_customer'] = marshal_group
+                sent['customer'] =array_customer
+                rows.append(sent)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
+class getAllSent(Resource):
+
+    # get all list only draft 
+    @staff_required
+    def get(self, id=None):
+        claims = get_jwt_claims()
+        qry = Sent.query.filter_by(user_id=claims['id'])
+        qry = qry.filter_by(status="sent")
+     
+        rows = []
+        if qry is not None:
+            track_list = []
+            for sent in qry:
+                qry_track = Track.query.filter_by(sent_id=sent.id)
+                # if qry_track is not None:
+                count_open_rate = 0
+                count_click_rate = 0
+                count_total = 0
+                track_list = []
+                for track in qry_track:
+                    count_total += 1
+                    if track.status_open == "opened":
+                        count_open_rate += 1
+                    elif track.status_click == "clicked":
+                        count_click_rate += 1
+                    marshaltrack = marshal(track, Track.response_fields)
+                    track_list.append(marshaltrack)
+                sent.open_rate = str(count_click_rate) + "/" + str(count_total)
+                sent.click_rate = str(count_click_rate) + "/" + str(count_total)
+                db.session.commit()
+                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                array_customer = []
+                for customer in qry_member:
+                    customer = Customer.query.filter_by(id=customer.customer_id).first()
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                marshal_sent = marshal(sent, Sent.response_fields)
+                marshal_sent['group_customer'] = marshal_group
+                marshal_sent['customer'] = array_customer
+                marshal_sent['track'] = track_list
+                rows.append(marshal_sent)
+            
+
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
 
 api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '<id>')
+api.add_resource(getAllDraft, '/draft-list', '<id>')
+api.add_resource(getAllSent, '/sent-list', '<id>')

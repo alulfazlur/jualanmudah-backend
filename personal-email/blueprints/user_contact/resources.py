@@ -78,6 +78,26 @@ class UserContactResource(Resource):
     def options(self):
         return {}, 200
 
+class ListUserContact(Resource):
 
+    @staff_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        claims = get_jwt_claims()
+        qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
+        
+        rows = []
+        for row in qry_user_contact.limit(args['rp']).offset(offset).all():
+            user_contact_list = (marshal(row, UserContact.response_fields))
+            rows.append(user_contact_list) 
+
+        return rows, 200
 
 api.add_resource(UserContactResource, '', '/<id>')
+api.add_resource(ListUserContact, '/list', '/<id>')

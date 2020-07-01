@@ -15,6 +15,8 @@ class Sent(db.Model):
     device = db.Column(db.String(50))
     contact_id = db.Column(db.Integer)
     group_id = db.Column(db.Integer)
+    open_rate = db.Column(db.String(20))
+    click_rate = db.Column(db.String(20))
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     track = db.relationship('Track', backref='sent', lazy=True)
@@ -29,12 +31,14 @@ class Sent(db.Model):
         'device' : fields.String,
         'contact_id': fields.Integer,
         'group_id': fields.Integer,
+        'open_rate': fields.String,
+        'click_rate': fields.String,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
 
     }
 
-    def __init__(self, user_id, status, subject, content, device, contact_id, group_id):
+    def __init__(self, user_id, status, subject, content, device, contact_id, group_id, open_rate, click_rate):
         self.user_id = user_id
         self.status = status
         self.subject = subject
@@ -42,6 +46,8 @@ class Sent(db.Model):
         self.device = device  
         self.contact_id = contact_id
         self.group_id = group_id
+        self.open_rate = open_rate
+        self.click_rate = click_rate
 
     def __repr__(self):
         return '<Sent %r>' % self.id
