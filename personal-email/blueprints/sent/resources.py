@@ -98,7 +98,8 @@ class SentResource(Resource):
                 qry.user_id = claims['id']
             if args['status'] is not None:
                 qry.status = args['status']
-            if args[]
+            if args['send_date'] is not None:
+                qry.send_date = args['send_date']
             if args['subject'] is not None:
                 qry.subject = args['subject']
             if args['content'] is not None:
