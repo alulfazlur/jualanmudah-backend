@@ -12,8 +12,6 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_cl
 bp_user_contact = Blueprint('user_contact', __name__)
 api = Api(bp_user_contact)
 
-# using flask restful
-
 
 class UserContactResource(Resource):
 
@@ -29,6 +27,7 @@ class UserContactResource(Resource):
     #         return QRY, 200
     #     return {'status': 'NOT_FOUND'}, 404
 
+    # post an user contact
     @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
@@ -46,6 +45,7 @@ class UserContactResource(Resource):
         app.logger.debug('DEBUG : %s', user_contact)
         return marshal(user_contact, UserContact.response_fields), 200, {'Content-Type': 'application/json'}
 
+    # patch an user contact
     @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
@@ -67,6 +67,7 @@ class UserContactResource(Resource):
 
             return marshal(qry, UserContact.response_fields), 200
 
+    # delete an user contact
     @staff_required
     def delete(self, id):
         qry = UserContact.query.get(id)
@@ -80,6 +81,7 @@ class UserContactResource(Resource):
 
 class ListUserContact(Resource):
 
+    # get all list user contact
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()

@@ -17,7 +17,8 @@ api = Api(bp_user_contact_group)
 
 class UserContactGroupResource(Resource):
 
-    # @staff_required
+    # get group by id
+    @staff_required
     def get(self, id=None):
         qry = UserContactGroup.query.get(id)
         if qry is not None:
@@ -25,7 +26,8 @@ class UserContactGroupResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @staff_required
+    # post group contact
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json', required=True)
@@ -40,7 +42,8 @@ class UserContactGroupResource(Resource):
         app.logger.debug('DEBUG : %s', user_contact)
         return marshal(user_contact, UserContactGroup.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @staff_required
+    # patch group contact
+    @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -58,7 +61,8 @@ class UserContactGroupResource(Resource):
 
             return marshal(qry, UserContactGroup.response_fields), 200
 
-    # @staff_required
+    # delete contact group
+    @staff_required
     def delete(self, id):
         qry = UserContactGroup.query.get(id)
         if qry is None:
@@ -68,26 +72,6 @@ class UserContactGroupResource(Resource):
 
     def options(self):
         return {}, 200
-
-class ListContactGroupAll(Resource):
-
-    # get all contact group
-    @staff_required
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('p', type=int, location='args', default=1)
-        parser.add_argument('rp', type=int, location='args', default=25)
-
-        args = parser.parse_args()
-        offset = (args['p']*args['rp']-args['rp'])
-
-        claims = get_jwt_claims()
-        qry = UserContactGroup.query
-        rows = []
-        for row in qry.limit(args['rp']).offset(offset).all():
-            group = (marshal(row, UserContactGroup.response_fields))
-            rows.append(group) 
-        return rows, 200
 
 class ListContactGroup(Resource):
 
@@ -116,4 +100,4 @@ class ListContactGroup(Resource):
 
 api.add_resource(UserContactGroupResource, '', '/<id>')
 api.add_resource(ListContactGroup, '/list', '/<id>')
-api.add_resource(ListContactGroupAll, '/list-all', '/<id>')
+
