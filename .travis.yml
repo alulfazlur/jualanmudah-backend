@@ -16,6 +16,7 @@ script:
 - sudo chmod +x deploy.sh
 - sudo chmod 600 deploy_rsa
 after_script:
+- cd personal-email/
 - docker build -t ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:backend-${TRAVIS_BUILD_ID} .
 - docker push ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:backend-${TRAVIS_BUILD_ID}
 - docker tag ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:backend-${TRAVIS_BUILD_ID} ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest
