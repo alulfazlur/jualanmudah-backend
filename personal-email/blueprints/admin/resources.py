@@ -25,18 +25,57 @@ bp_admin = Blueprint('admin', __name__)
 api = Api(bp_admin)
 
 
-class SentAdmin(Resource):
+class UserAdminListLeader(Resource):
+    
+    # get all list user leader by status
+    @admin_required
+    def get(self, id=None):
+        qry = User.query.filter_by(status="leader")
+        if qry is not None:
+            rows = []
+            for row in qry:
+                marshalleader=marshal(row, User.response_fields).first()
+                rows.append(marshalleader)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+    
+    # delete an user
+    @admin_required
+    def delete(self, id):
+        qry = User.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
 
-    # get all list draft and sent email
+class UserAdminListStaff(Resource):
+
+    # get list staff user by leader_id
     @admin_required
     def get(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('leader_id', location='json')
         args = parser.parse_args()
+        qry = User.query.filter_by(leader_id=args['leader_id'])
+        if qry is not None:
+            rows = []
+            for row in qry:
+                marshalstaff=marshal(row, User.response_fields).first()
+                rows.append(marshalstaff)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
+class SentAdmin(Resource):
+
+    # get all list sent and draft by user_id
+    @admin_required
+    def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json')
+        args = parser.parse_args()
         claims = get_jwt_claims()
-        qry = Sent.query.filter_by(user_id=args['leader_id']).all()
+        qry = Sent.query.filter_by(user_id=args['user_id']).all()
         rows = []
-        # get list sent, customer group, customer
         if qry is not None:
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
@@ -54,5 +93,17 @@ class SentAdmin(Resource):
                 rows.append(sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    # delete a sent email
+    @admin_required
+    def delete(self, id):
+        qry = Sent.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
+
+class CustomerAdmin(Resource):
+    
 
 api.add_resource(SentAdmin, '', '/<id>')

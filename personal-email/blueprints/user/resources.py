@@ -26,7 +26,7 @@ class UserResource(Resource):
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
 
-    # @staff_required
+    @leader_required
     def post(self):
         
         parser = reqparse.RequestParser()
@@ -39,6 +39,7 @@ class UserResource(Resource):
         parser.add_argument('position', location='form', required=True)
         parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
         args = parser.parse_args()
+        claims = get_jwt_claims()
         image = args['user_image']
         upload_image = UploadToFirebase ()
         link = upload_image.UploadImage(image,"user_image")
@@ -46,7 +47,7 @@ class UserResource(Resource):
         hash_pass = hashlib.sha512(
             ('%s%s' % (args['password'], salt)).encode('utf-8')).hexdigest()
         user = User(args['full_name'],
-                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'],link)
+                    args['username'], hash_pass, salt, args['status'], args['address'], args['position'],link, claims['id'])
 
         db.session.add(user)
         db.session.commit()
@@ -54,7 +55,7 @@ class UserResource(Resource):
         app.logger.debug('DEBUG : %s', user)
         return marshal(user, User.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @staff_required
+    @leader_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
