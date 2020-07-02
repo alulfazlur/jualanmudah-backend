@@ -161,5 +161,41 @@ class MemberCustomerAdmin(Resource):
         db.session.delete(qry)
         db.session.commit()
 
+class UserContactAdmin(Resource):
+
+    # get all list user contact 
+    @admin_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        claims = get_jwt_claims()
+        qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
+        if qry_user_contact is None:
+            return {'status': 'NOT_FOUND'}, 404
+        rows = []
+        for row in qry_user_contact.limit(args['rp']).offset(offset).all():
+            user = User.query.filter_by(id=row.user_id).first()
+            marshaluser = marshal(user, User.response_fields)
+            user_group = UserContactGroup.query.filter_by(id=row.contact_group_id).first()
+            marshalgroup = marshal(user_group, UserContactGroup.response_fields)
+            user_contact_list = (marshal(row, UserContact.response_fields))
+            user_contact_list['user'] = marshaluser
+            user_contact_list['user_contact_group'] = marshalgroup
+            rows.append(user_contact_list) 
+        return rows, 200
+    
+    # delete a user contact
+    @admin_required
+    def delete(self, id):
+        qry = UserContact.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
 
 api.add_resource(SentAdmin, '', '/<id>')
