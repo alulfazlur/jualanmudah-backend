@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import UserContact
-from blueprints import db, app, staff_required
+from blueprints import db, app, staff_required, leader_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact_group.model import UserContactGroup
@@ -12,24 +12,23 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_cl
 bp_user_contact = Blueprint('user_contact', __name__)
 api = Api(bp_user_contact)
 
-# using flask restful
-
 
 class UserContactResource(Resource):
 
     # @staff_required
-    def get(self, id=None):
-        qry = UserContact.query.get(id)
-        if qry is not None:
-            QRY = marshal(qry, UserContact.response_fields)
-            user = User.query.filter_by(user_id=QRY['id']).first()
-            contact_list = UserContactGroup.query.filter_by(contact_group_id=QRY['id']).first()
-            QRY['User'] = marshal(user, User.response_fields)
-            QRY['contact_list'] = marshal(contact_list,UserContactGroup.response_fields)
-            return QRY, 200
-        return {'status': 'NOT_FOUND'}, 404
+    # def get(self, id=None):
+    #     qry = UserContact.query.get(id)
+    #     if qry is not None:
+    #         QRY = marshal(qry, UserContact.response_fields)
+    #         user = User.query.filter_by(user_id=QRY['id']).first()
+    #         contact_list = UserContactGroup.query.filter_by(contact_group_id=QRY['id']).first()
+    #         QRY['User'] = marshal(user, User.response_fields)
+    #         QRY['contact_list'] = marshal(contact_list,UserContactGroup.response_fields)
+    #         return QRY, 200
+    #     return {'status': 'NOT_FOUND'}, 404
 
-    # @staff_required
+    # post an user contact
+    @staff_required
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json', required=True)
@@ -46,7 +45,8 @@ class UserContactResource(Resource):
         app.logger.debug('DEBUG : %s', user_contact)
         return marshal(user_contact, UserContact.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # @staff_required
+    # patch an user contact
+    @staff_required
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
@@ -67,7 +67,8 @@ class UserContactResource(Resource):
 
             return marshal(qry, UserContact.response_fields), 200
 
-    # @staff_required
+    # delete an user contact
+    @staff_required
     def delete(self, id):
         qry = UserContact.query.get(id)
         if qry is None:
@@ -80,6 +81,7 @@ class UserContactResource(Resource):
 
 class ListUserContact(Resource):
 
+    # get all list user contact
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
@@ -91,13 +93,49 @@ class ListUserContact(Resource):
 
         claims = get_jwt_claims()
         qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
-        
+        if qry_user_contact is None:
+            return {'status': 'NOT_FOUND'}, 404
+
         rows = []
         for row in qry_user_contact.limit(args['rp']).offset(offset).all():
+            user = User.query.filter_by(id=row.user_id).first()
+            marshaluser = marshal(user, User.response_fields)
+            user_group = UserContactGroup.query.filter_by(id=row.contact_group_id).first()
+            marshalgroup = marshal(user_group, UserContactGroup.response_fields)
             user_contact_list = (marshal(row, UserContact.response_fields))
+            user_contact_list['user'] = marshaluser
+            user_contact_list['user_contact_group'] = marshalgroup
             rows.append(user_contact_list) 
+        return rows, 200
 
+class UserContactLeader(Resource):
+
+    # get all list user contact by user_id for leader
+    @leader_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        qry_user_contact = UserContact.query.filter_by(user_id=args['user_id'])
+        if qry_user_contact is None:
+            return {'status': 'NOT_FOUND'}, 404
+        rows = []
+        for row in qry_user_contact.limit(args['rp']).offset(offset).all():
+            user = User.query.filter_by(id=row.user_id).first()
+            marshaluser = marshal(user, User.response_fields)
+            user_group = UserContactGroup.query.filter_by(id=row.contact_group_id).first()
+            marshalgroup = marshal(user_group, UserContactGroup.response_fields)
+            user_contact_list = (marshal(row, UserContact.response_fields))
+            user_contact_list['user'] = marshaluser
+            user_contact_list['user_contact_group'] = marshalgroup
+            rows.append(user_contact_list) 
         return rows, 200
 
 api.add_resource(UserContactResource, '', '/<id>')
 api.add_resource(ListUserContact, '/list', '/<id>')
+api.add_resource(UserContactLeader, '/leader', '/<id>')

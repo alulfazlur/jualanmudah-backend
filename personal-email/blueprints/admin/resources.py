@@ -41,7 +41,7 @@ class UserAdminListLeader(Resource):
         if qry is not None:
             rows = []
             for row in qry.limit(args['rp']).offset(offset).all():
-                marshalleader=marshal(row, User.response_fields).first()
+                marshalleader=marshal(row, User.response_fields)
                 rows.append(marshalleader)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
@@ -72,7 +72,7 @@ class UserAdminListStaff(Resource):
         if qry is not None:
             rows = []
             for row in qry.limit(args['rp']).offset(offset).all():
-                marshalstaff=marshal(row, User.response_fields).first()
+                marshalstaff=marshal(row, User.response_fields)
                 rows.append(marshalstaff)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
@@ -91,7 +91,7 @@ class SentAdmin(Resource):
         offset = (args['p']*args['rp']-args['rp'])
         claims = get_jwt_claims()
 
-        qry = Sent.query.filter_by(user_id=args['user_id']).all()
+        qry = Sent.query.filter_by(user_id=args['user_id'])
         rows = []
         if qry is not None:
             for sent in qry.limit(args['rp']).offset(offset).all():
@@ -137,7 +137,7 @@ class CustomerAdmin(Resource):
         if qry is not None:
             rows = []
             for row in qry.limit(args['rp']).offset(offset).all():
-                marshalcustomer = marshal(row, Customer.response_fields).first()
+                marshalcustomer = marshal(row, Customer.response_fields)
                 rows.append(marshalcustomer)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
@@ -194,14 +194,14 @@ class UserContactAdmin(Resource):
     @admin_required
     def get(self):
         parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json')
         parser.add_argument('p', type=int, location='args', default=1)
         parser.add_argument('rp', type=int, location='args', default=25)
 
         args = parser.parse_args()
         offset = (args['p']*args['rp']-args['rp'])
 
-        claims = get_jwt_claims()
-        qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
+        qry_user_contact = UserContact.query.filter_by(user_id=args['user_id'])
         if qry_user_contact is None:
             return {'status': 'NOT_FOUND'}, 404
         rows = []
