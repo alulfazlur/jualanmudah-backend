@@ -129,5 +129,24 @@ class CustomerAdmin(Resource):
         db.session.delete(qry)
         db.session.commit()
 
+class MemberCustomerAdmin(Resource):
+
+    # get all member list
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('group_id', location='json')
+        parser.add_argument('user_id', location='json')
+        args = parser.parse_args()
+        qry_customer = Customer.query.filter_by(user_id=args['user_id'])
+        qry_group = CustomerGroup.query.get(args["group_id"])
+        marshalgroup = marshal(qry_group,CustomerGroup.response_fields)
+        qry_member = CustomerMember.query.filter_by(group_id=args['group_id'])
+        rows = []
+        for member in qry_member:
+            customer = Customer.query.filter_by(id=member.customer_id).first()    
+            marshalcustomer = marshal(customer,Customer.response_fields)
+            rows.append(marshalcustomer)
+        marshalgroup["anggota"]= rows
+        return marshalgroup,200
 
 api.add_resource(SentAdmin, '', '/<id>')
