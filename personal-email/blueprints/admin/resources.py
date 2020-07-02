@@ -105,6 +105,7 @@ class SentAdmin(Resource):
 
 class CustomerAdmin(Resource):
 
+    # get list data customer by user_id
     @admin_required
     def get(self, id=None):
         parser = reqparse.RequestParser()
@@ -118,6 +119,15 @@ class CustomerAdmin(Resource):
                 rows.append(marshalcustomer)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    # delete a customer data
+    @admin_required
+    def delete(self, id):
+        qry = Customer.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
 
 
 api.add_resource(SentAdmin, '', '/<id>')
