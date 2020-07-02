@@ -132,6 +132,7 @@ class CustomerAdmin(Resource):
 class MemberCustomerAdmin(Resource):
 
     # get all member list
+    @admin_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('group_id', location='json')
@@ -141,6 +142,8 @@ class MemberCustomerAdmin(Resource):
         qry_group = CustomerGroup.query.get(args["group_id"])
         marshalgroup = marshal(qry_group,CustomerGroup.response_fields)
         qry_member = CustomerMember.query.filter_by(group_id=args['group_id'])
+        if qry_member is None:
+            return {'status': 'NOT_FOUND'}, 404
         rows = []
         for member in qry_member:
             customer = Customer.query.filter_by(id=member.customer_id).first()    
@@ -148,5 +151,15 @@ class MemberCustomerAdmin(Resource):
             rows.append(marshalcustomer)
         marshalgroup["anggota"]= rows
         return marshalgroup,200
+    
+    # delete a customer data
+    @admin_required
+    def delete(self, id):
+        qry = CustomerMember.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
+
 
 api.add_resource(SentAdmin, '', '/<id>')
