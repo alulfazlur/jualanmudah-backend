@@ -16,13 +16,16 @@ api = Api(bp_customer_group)
 
 class CustomerGroupResource(Resource):
 
-    # @staff_required
+    # get customer group by id
+    @staff_required
     def get(self, id=None):
         qry = CustomerGroup.query.get(id)
         if qry is not None:
             return marshal(qry, CustomerGroup.response_fields), 200
         return {'status': 'NOT_FOUND'}, 404
-    
+
+    # post customer group
+    @staff_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json')
@@ -36,4 +39,37 @@ class CustomerGroupResource(Resource):
 
         return marshal(customer_group, CustomerGroup.response_fields), 200, {'Content-Type': 'application/json'}
 
+    # delete customer group
+    @staff_required
+    def delete(self, id):
+        qry = CustomerGroup.query.get(id)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        db.session.delete(qry)
+        db.session.commit()
+
+
+class ListCustomerGroup(Resource):
+
+    # get call list customer group
+    @staff_required
+    def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+        qry = CustomerGroup.query
+        print("==============----------------------")
+        print(qry)
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        rows=[]
+        for row in qry.offset(offset).all():
+            marshal_group= marshal(row, CustomerGroup.response_fields)
+            rows.append(marshal_group)
+        return rows, 200
+        
 api.add_resource(CustomerGroupResource, '', '/<id>')
+api.add_resource(ListCustomerGroup, '/list', '/<id>')
