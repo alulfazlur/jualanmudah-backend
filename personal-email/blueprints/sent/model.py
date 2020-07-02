@@ -8,7 +8,7 @@ class Sent(db.Model):
     __tablename__ = "sent"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer)
-    send_date = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
+    send_date = db.Column(db.String(50))
     status = db.Column(db.String(50))
     subject = db.Column(db.String(2000))
     content = db.Column(db.Text, nullable= False)
@@ -24,8 +24,8 @@ class Sent(db.Model):
     response_fields = {
         'id': fields.Integer,
         'user_id': fields.Integer,
-        'send_date': fields.DateTime,
         'status': fields.String,
+        'send_date': fields.String,
         'subject': fields.String,
         'content': fields.String,
         'device' : fields.String,
@@ -38,9 +38,10 @@ class Sent(db.Model):
 
     }
 
-    def __init__(self, user_id, status, subject, content, device, contact_id, group_id, open_rate, click_rate):
+    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, open_rate, click_rate):
         self.user_id = user_id
         self.status = status
+        self.send_date = send_date
         self.subject = subject
         self.content = content
         self.device = device  
