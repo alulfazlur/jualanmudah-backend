@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from blueprints.sent.model import Sent
-from blueprints import db, app, staff_required
+from blueprints import db, app, staff_required, leader_required
 from sqlalchemy import desc
 from blueprints.user.model import User
 from blueprints.user_contact.model import UserContact
@@ -33,8 +33,8 @@ class SentResource(Resource):
     def get(self, id=None):
         claims = get_jwt_claims()
         qry = Sent.query.filter_by(user_id=claims['id']).all()
+
         rows = []
-        # get list sent, customer group, customer
         if qry is not None:
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
@@ -54,7 +54,7 @@ class SentResource(Resource):
         return {'status': 'NOT_FOUND'}, 404
 
     # fungsi untuk mengirim email melalui mailjet
-    # @staff_required
+    @staff_required
     def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
         app.config.update(dict(
             DEBUG = True,
@@ -127,7 +127,6 @@ class SentResource(Resource):
             qry_sent_member = CustomerMember.query.filter_by(group_id=qry.group_id)
 
             # send an email from flask mail 
-            # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
             if len(args['send_date'])>5:
                 senddate = args['send_date'].split(',')
                 year = int(senddate[0])
@@ -140,8 +139,6 @@ class SentResource(Resource):
                 time.sleep(sent_time.timestamp()- time.time())
             elif args['send_date'] == "now":
                 sent.send_date = str(datetime.datetime.now())
-                print("===================_____________________ ")
-                print(sent.send_date)
                 db.session.commit()
                 pass
             str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
@@ -153,8 +150,6 @@ class SentResource(Resource):
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
                 content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
-                print("+++++++++++++++++=======================-----------------")
-                print(content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -243,18 +238,15 @@ class SendMailDirect(Resource):
         marshaluserMail= marshal(from_mail, UserContact.response_fields)
         
         # save to database
-
-        sent = Sent(user_id, args['status'], args['send_date'], args['subject'], args['content'], args['device'],
-        args['contact_id'], args['group_id'], "", "")
+        sent = Sent(user_id, args['status'], args['send_date'], args['subject'], 
+        args['content'], args['device'],args['contact_id'], args['group_id'], "", "")
         db.session.add(sent)
         db.session.commit()
 
         # determine email address customer from customer table
         qry_sent_member = CustomerMember.query.filter_by(group_id=args['group_id'])
-       
 
         # send an email from flask mail 
-        # <img src="https://lolbe.perintiscerita.shop/response" style="display: none;" />
         if len(args['send_date'])>5:
             senddate = args['send_date'].split(',')
             year = int(senddate[0])
@@ -267,8 +259,6 @@ class SendMailDirect(Resource):
             time.sleep(sent_time.timestamp()- time.time())
         elif args['send_date'] == "now":
             sent.send_date = str(datetime.datetime.now())
-            print("===================_____________________ ")
-            print(sent.send_date)
             db.session.commit()
             pass
         str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
@@ -280,8 +270,6 @@ class SendMailDirect(Resource):
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
             content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
-            print("+++++++++++++++++=======================-----------------")
-            print(content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
@@ -318,6 +306,7 @@ class getAllDraft(Resource):
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
@@ -362,8 +351,10 @@ class getAllSent(Resource):
                 sent.open_rate = str(count_click_rate) + "/" + str(count_total)
                 sent.click_rate = str(count_click_rate) + "/" + str(count_total)
                 db.session.commit()
+
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
@@ -376,8 +367,6 @@ class getAllSent(Resource):
                 marshal_sent['customer'] = array_customer
                 marshal_sent['track'] = track_list
                 rows.append(marshal_sent)
-            
-
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
