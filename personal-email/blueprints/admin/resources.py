@@ -30,10 +30,17 @@ class UserAdminListLeader(Resource):
     # get all list user leader by status
     @admin_required
     def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
         qry = User.query.filter_by(status="leader")
         if qry is not None:
             rows = []
-            for row in qry:
+            for row in qry.limit(args['rp']).offset(offset).all():
                 marshalleader=marshal(row, User.response_fields).first()
                 rows.append(marshalleader)
             return rows, 200
@@ -55,11 +62,16 @@ class UserAdminListStaff(Resource):
     def get(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('leader_id', location='json')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
         args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
         qry = User.query.filter_by(leader_id=args['leader_id'])
         if qry is not None:
             rows = []
-            for row in qry:
+            for row in qry.limit(args['rp']).offset(offset).all():
                 marshalstaff=marshal(row, User.response_fields).first()
                 rows.append(marshalstaff)
             return rows, 200
@@ -72,12 +84,17 @@ class SentAdmin(Resource):
     def get(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
         args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
         claims = get_jwt_claims()
+
         qry = Sent.query.filter_by(user_id=args['user_id']).all()
         rows = []
         if qry is not None:
-            for sent in qry:
+            for sent in qry.limit(args['rp']).offset(offset).all():
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
                 array_customer = []
@@ -110,11 +127,16 @@ class CustomerAdmin(Resource):
     def get(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', location='json')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
         args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
         qry = Customer.query.filter_by(user_id=args['user_id'])
         if qry is not None:
             rows = []
-            for row in qry:
+            for row in qry.limit(args['rp']).offset(offset).all():
                 marshalcustomer = marshal(row, Customer.response_fields).first()
                 rows.append(marshalcustomer)
             return rows, 200
@@ -135,9 +157,14 @@ class MemberCustomerAdmin(Resource):
     @admin_required
     def get(self):
         parser = reqparse.RequestParser()
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
         parser.add_argument('group_id', location='json')
         parser.add_argument('user_id', location='json')
+
         args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
         qry_customer = Customer.query.filter_by(user_id=args['user_id'])
         qry_group = CustomerGroup.query.get(args["group_id"])
         marshalgroup = marshal(qry_group,CustomerGroup.response_fields)
@@ -145,7 +172,7 @@ class MemberCustomerAdmin(Resource):
         if qry_member is None:
             return {'status': 'NOT_FOUND'}, 404
         rows = []
-        for member in qry_member:
+        for member in qry_member.limit(args['rp']).offset(offset).all():
             customer = Customer.query.filter_by(id=member.customer_id).first()    
             marshalcustomer = marshal(customer,Customer.response_fields)
             rows.append(marshalcustomer)
@@ -198,4 +225,9 @@ class UserContactAdmin(Resource):
         db.session.delete(qry)
         db.session.commit()
 
-api.add_resource(SentAdmin, '', '/<id>')
+api.add_resource(UserAdminListLeader, '/user-leader', '/<id>')
+api.add_resource(UserAdminListStaff, '/user-staff', '/<id>')
+api.add_resource(SentAdmin, '/sent', '/<id>')
+api.add_resource(CustomerAdmin, '/customer', '/<id>')
+api.add_resource(MemberCustomerAdmin, '/member', '/<id>')
+api.add_resource(UserContactAdmin, '/user-contact', '/<id>')
