@@ -104,6 +104,20 @@ class SentAdmin(Resource):
         db.session.commit()
 
 class CustomerAdmin(Resource):
-    
+
+    @admin_required
+    def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json')
+        args = parser.parse_args()
+        qry = Customer.query.filter_by(user_id=args['user_id'])
+        if qry is not None:
+            rows = []
+            for row in qry:
+                marshalcustomer = marshal(row, Customer.response_fields).first()
+                rows.append(marshalcustomer)
+            return rows, 200
+        return {'status': 'NOT_FOUND'}, 404
+
 
 api.add_resource(SentAdmin, '', '/<id>')
