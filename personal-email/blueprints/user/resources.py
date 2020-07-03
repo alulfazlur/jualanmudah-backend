@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import User
-from blueprints import db, app, leader_required
+from blueprints import db, app, leader_required, staff_required
 from blueprints.firebase.upload import UploadToFirebase 
 from sqlalchemy import desc
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
@@ -17,9 +17,10 @@ api = Api(bp_user)
 
 class UserStaff(Resource):
 
-    # @staff_required
+    @staff_required
     def get(self, id=None):
-        qry = User.query.get(id)
+        claims = get_jwt_claims()
+        qry = User.query.get(claims['id'])
         if qry is not None:
             QRY = marshal(qry, User.response_fields)
             return QRY, 200
