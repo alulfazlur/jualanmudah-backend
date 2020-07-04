@@ -59,10 +59,16 @@ class UserContactResource(Resource):
             parser.add_argument('email_or_wa', location='json',required=True)
             parser.add_argument('password', location='json')
             args = parser.parse_args()
-            qry.user_id = args['user_id']
-            qry.contact_id = args['contact_id']
-            qry.email_or_wa = args['email_or_wa']
-            qry.password = args['password']
+
+            if args['user_id'] is not None:
+                qry.user_id = args['user_id']
+            if args['contact_id'] is not None:
+                qry.contact_id = args['contact_id']
+            if args['email_or_wa'] is not None:
+                qry.email_or_wa = args['email_or_wa']
+            if args['password'] is not None:
+                qry.password = args['password']
+                
             db.session.commit()
 
             return marshal(qry, UserContact.response_fields), 200

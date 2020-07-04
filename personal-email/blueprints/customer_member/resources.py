@@ -86,3 +86,4 @@ class LeaderCustomerMember(Resource):
 
 
 api.add_resource(CustomerMemberResource, '', '/<id>')
+api.add_resource(LeaderCustomerMember, '/leader', '/<id>')
