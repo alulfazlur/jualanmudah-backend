@@ -162,6 +162,7 @@ class SentResource(Resource):
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('status', location='json')
+        parser.add_argument('send_date', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
         parser.add_argument('device', location='json')
@@ -173,7 +174,7 @@ class SentResource(Resource):
         user_id = User.query.filter_by(id=claims['id']).first()
         user_id = user_id.id
 
-        sent = Sent(user_id, args['status'], args['subject'], args['content'],
+        sent = Sent(user_id, args['status'], args['send_date'], args['subject'], args['content'],
         args['device'], args['contact_id'], args['group_id'], 0, 0, 0)
 
         db.session.add(sent)
