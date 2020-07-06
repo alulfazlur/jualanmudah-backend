@@ -33,13 +33,13 @@ class Sent(db.Model):
         'group_id': fields.Integer,
         'open_rate': fields.Integer,
         'click_rate': fields.Integer,
-        'total_count': fields.Integer,
+        'total_sent': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
 
     }
 
-    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, open_rate, click_rate, total_count):
+    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, open_rate, click_rate, total_sent):
         self.user_id = user_id
         self.status = status
         self.send_date = send_date
@@ -50,7 +50,7 @@ class Sent(db.Model):
         self.group_id = group_id
         self.open_rate = open_rate
         self.click_rate = click_rate
-        self.total_count = total_count
+        self.total_sent = total_sent
 
     def __repr__(self):
         return '<Sent %r>' % self.id
