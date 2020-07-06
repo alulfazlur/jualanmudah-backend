@@ -174,7 +174,7 @@ class SentResource(Resource):
         user_id = user_id.id
 
         sent = Sent(user_id, args['status'], args['subject'], args['content'],
-        args['device'], args['contact_id'], args['group_id'], "", "", 0)
+        args['device'], args['contact_id'], args['group_id'], 0, 0, 0)
 
         db.session.add(sent)
         db.session.commit()
@@ -239,7 +239,7 @@ class SendMailDirect(Resource):
         
         # save to database
         sent = Sent(user_id, args['status'], args['send_date'], args['subject'], 
-        args['content'], args['device'],args['contact_id'], args['group_id'], "", "", 0)
+        args['content'], args['device'],args['contact_id'], args['group_id'], 0, 0, 0)
         db.session.add(sent)
         db.session.commit()
 
@@ -350,7 +350,7 @@ class getAllSent(Resource):
                     track_list.append(marshaltrack)
                 sent.open_rate = count_open_rate
                 sent.click_rate = count_click_rate
-                sent.total_count = count_total
+                sent.total_sent = count_total
                 db.session.commit()
 
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
