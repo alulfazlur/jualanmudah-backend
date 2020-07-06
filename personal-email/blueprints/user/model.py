@@ -27,7 +27,7 @@ class User(db.Model):
         'full_name': fields.String,
         'username': fields.String,
         'password': fields.String,
-        'status': fields.Boolean,
+        'status': fields.String,
         'address': fields.String,
         'position': fields.String,
         'user_image' : fields.String,
