@@ -17,7 +17,7 @@ class Config():
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = cfg['secret_key']['key']
-    JWT_ACCES_TOKEN_EXPIRES = timedelta(days=2)
+    JWT_ACCES_TOKEN_EXPIRES = timedelta(days=1)
     FIREBASECONFIG = {
             "apiKey" : cfg['firebase']['apiKey'],
             "authDomain" : cfg['firebase']['authDomain'],

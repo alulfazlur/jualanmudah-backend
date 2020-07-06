@@ -75,6 +75,10 @@ class UserStaff(Resource):
             parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
             args = parser.parse_args()
 
+
+            image = args['user_image']
+            upload_image = UploadToFirebase ()
+            link = upload_image.UploadImage(image,"user_image")
             if args['full_name'] is not None:
                 qry.full_name = args['full_name']
             if args['username'] is not None:
@@ -84,7 +88,9 @@ class UserStaff(Resource):
             if args['address'] is not None:
                 qry.address = args['address']
             if args['position'] is not None:
-                qry.status = args['position']
+                qry.position = args['position']
+            if args['user_image'] is not None:
+                qry.user_image = link
             
             db.session.commit()
 
