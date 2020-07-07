@@ -311,12 +311,12 @@ class getAllDraft(Resource):
                 else:
                     qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                     qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
-
                     array_customer = []
                     for customer in qry_member:
                         customer = Customer.query.filter_by(id=customer.customer_id).first()
-                        customer = marshal(customer, Customer.response_fields)
-                        array_customer.append(customer)
+                        if customer.user_id==claims['id']:
+                            customer = marshal(customer, Customer.response_fields)
+                            array_customer.append(customer)
                     qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                     marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                     sent = marshal(sent, Sent.response_fields)
