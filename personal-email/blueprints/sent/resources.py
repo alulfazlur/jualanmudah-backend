@@ -283,7 +283,7 @@ class getDraftById(Resource):
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('draft_id', location='json')
+        parser.add_argument('draft_id', location='args')
         args = parser.parse_args()
         claims = get_jwt_claims()
 
@@ -305,20 +305,24 @@ class getAllDraft(Resource):
         rows = []
         if qry is not None:
             for sent in qry:
-                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
-                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                if sent.group_id is None:
+                    marshal_sent = marshal(sent, Sent.response_fields)
+                    rows.append(marshal_sent)
+                else:
+                    qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                    qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
 
-                array_customer = []
-                for customer in qry_member:
-                    customer = Customer.query.filter_by(id=customer.customer_id).first()
-                    customer = marshal(customer, Customer.response_fields)
-                    array_customer.append(customer)
-                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
-                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
-                sent = marshal(sent, Sent.response_fields)
-                sent['group_customer'] = marshal_group
-                sent['customer'] =array_customer
-                rows.append(sent)
+                    array_customer = []
+                    for customer in qry_member:
+                        customer = Customer.query.filter_by(id=customer.customer_id).first()
+                        customer = marshal(customer, Customer.response_fields)
+                        array_customer.append(customer)
+                    qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                    marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                    sent = marshal(sent, Sent.response_fields)
+                    sent['group_customer'] = marshal_group
+                    sent['customer'] =array_customer
+                    rows.append(sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
