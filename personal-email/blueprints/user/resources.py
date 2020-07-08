@@ -24,7 +24,7 @@ class UserStaff(Resource):
         if qry is not None:
             QRY = marshal(qry, User.response_fields)
             return QRY, 200
-        return {'status': 'NOT_FOUND'}, 404
+        # return {'status': 'NOT_FOUND'}, 404
 
     # post a user only for staff
     @leader_required
@@ -61,43 +61,43 @@ class UserStaff(Resource):
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
-        else:
-            parser = reqparse.RequestParser()
-            parser.add_argument('full_name', location='form', required=True)
-            parser.add_argument('username', location='form', required=True)
-            parser.add_argument('password', location='form',
-                                required=True)
-            parser.add_argument('status', location='form', choices=["admin","leader","staff"])
-            parser.add_argument('address', location='form', required=True)
-            parser.add_argument('position', location='form', required=True)
-            parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
-            args = parser.parse_args()
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
+        # else:
+        parser = reqparse.RequestParser()
+        parser.add_argument('full_name', location='form', required=True)
+        parser.add_argument('username', location='form', required=True)
+        parser.add_argument('password', location='form',
+                            required=True)
+        parser.add_argument('status', location='form', choices=["admin","leader","staff"])
+        parser.add_argument('address', location='form', required=True)
+        parser.add_argument('position', location='form', required=True)
+        parser.add_argument('user_image', location='files', type= werkzeug.datastructures.FileStorage,required=False)
+        args = parser.parse_args()
 
 
-            image = args['user_image']
-            upload_image = UploadToFirebase ()
-            link = upload_image.UploadImage(image,"user_image")
-            if args['full_name'] is not None:
-                qry.full_name = args['full_name']
-            if args['username'] is not None:
-                qry.username = args['username']
-            if args['password'] is not None:
-                qry.password = args['password']
-            if args['address'] is not None:
-                qry.address = args['address']
-            if args['position'] is not None:
-                qry.position = args['position']
-            if args['user_image'] is not None:
-                qry.user_image = link
-            
-            db.session.commit()
+        image = args['user_image']
+        upload_image = UploadToFirebase ()
+        link = upload_image.UploadImage(image,"user_image")
+        if args['full_name'] is not None:
+            qry.full_name = args['full_name']
+        if args['username'] is not None:
+            qry.username = args['username']
+        if args['password'] is not None:
+            qry.password = args['password']
+        if args['address'] is not None:
+            qry.address = args['address']
+        if args['position'] is not None:
+            qry.position = args['position']
+        # if args['user_image'] is not None:
+        #     qry.user_image = link
+        
+        db.session.commit()
 
-            return marshal(qry, User.response_fields), 200
+        return marshal(qry, User.response_fields), 200
 
-    def options(self):
-        return {}, 200
+    # def options(self):
+    #     return {}, 200
 
 class UserLeader(Resource):
 
