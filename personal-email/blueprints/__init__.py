@@ -11,8 +11,10 @@ from flask_script import Manager
 from logging.handlers import RotatingFileHandler
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_claims
 from flask_cors import CORS, cross_origin
+from werkzeug.contrib.cache import SimpleCache
 # from flask_mail import Mail
 
+cache = SimpleCache()
 
 app = Flask(__name__)
 CORS(app, origins="*", allow_headers=[
