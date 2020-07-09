@@ -143,6 +143,8 @@ app.register_blueprint(bp_track, url_prefix='/track')
 from blueprints.admin.resources import bp_admin
 app.register_blueprint(bp_admin, url_prefix='/admin')
 
+from blueprints.input_excel.resources import bp_input_node
+app.register_blueprint(bp_input_node, url_prefix='/input-excel')
 
 
 db.create_all()

@@ -288,11 +288,26 @@ class getDraftById(Resource):
         claims = get_jwt_claims()
 
         qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        qry_draft = qry_sent.filter_by(id=args['draft_id']).first()
-
-        if qry_draft is not None:
-            return marshal(qry_draft, Sent.response_fields), 200
-        return {'status': 'NOT FOUND'}, 404
+        qry_draft = Sent.query.filter_by(id=args['draft_id']).first()
+        if qry_draft.group_id is None:
+            marshal_sent = marshal(qry_draft, Sent.response_fields)
+            return marshal_sent, 200
+        else:
+            qry_member = CustomerMember.query.filter_by(group_id=qry_draft.group_id)
+            qry_member_cus = CustomerMember.query.filter_by(group_id=qry_draft.group_id).first()
+            array_customer = []
+            for customer in qry_member:
+                customer = Customer.query.filter_by(id=customer.customer_id).first()
+                if customer.user_id==claims['id']:
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+            qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+            marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+            sent = marshal(qry_draft, Sent.response_fields)
+            sent['group_customer'] = marshal_group
+            sent['customer'] =array_customer
+            return sent, 200
+        return {'status': 'NOT_FOUND'}, 404
 
 class getAllDraft(Resource):
 
@@ -364,8 +379,9 @@ class getAllSent(Resource):
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
-                    customer = marshal(customer, Customer.response_fields)
-                    array_customer.append(customer)
+                    if customer.user_id==claims['id']:
+                        customer = marshal(customer, Customer.response_fields)
+                        array_customer.append(customer)
                 qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                 marshal_sent = marshal(sent, Sent.response_fields)

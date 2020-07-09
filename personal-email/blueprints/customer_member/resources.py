@@ -22,7 +22,7 @@ class CustomerMemberResource(Resource):
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('group_id', location='json')
+        parser.add_argument('group_id', location='args')
         args = parser.parse_args()
         claims = get_jwt_claims()
         qry_customer = Customer.query.filter_by(user_id=claims['id'])
@@ -46,6 +46,11 @@ class CustomerMemberResource(Resource):
         parser.add_argument('group_id', location='json')
         args = parser.parse_args()
 
+        qry =  CustomerMember.query.filter_by(group_id=args['group_id'])
+        for member in qry:
+            print(marshal(member, CustomerMember.response_fields))
+            if int(member.customer_id) == int(args['customer_id']):
+                return {'MESSAGE': 'CUSTOMER_ID HAVE BEEN ADDED'}, 400
         customer_member = CustomerMember(args['customer_id'], args['group_id'])
 
         db.session.add(customer_member)
