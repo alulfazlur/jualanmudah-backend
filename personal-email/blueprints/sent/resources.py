@@ -39,6 +39,7 @@ class SentResource(Resource):
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                print(marshal(qry_member_cus, CustomerGroup.response_fields))
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
@@ -46,6 +47,8 @@ class SentResource(Resource):
                     array_customer.append(customer)
                 qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                print("==================++++++++++++++++-------------------------")
+                print(marshal_group)
                 sent = marshal(sent, Sent.response_fields)
                 sent['group_customer'] = marshal_group
                 sent['customer'] =array_customer
@@ -55,7 +58,7 @@ class SentResource(Resource):
 
     # fungsi untuk mengirim email melalui mailjet
     @staff_required
-    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
+    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage, passmail):
         app.config.update(dict(
             DEBUG = True,
             MAIL_SERVER = 'smtp.gmail.com',
@@ -63,7 +66,7 @@ class SentResource(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',
+            MAIL_PASSWORD = passmail,
         ))
         mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
@@ -141,7 +144,7 @@ class SentResource(Resource):
                 sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
+            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
@@ -149,7 +152,7 @@ class SentResource(Resource):
                 marshalcustomer = marshal(customer, Customer.response_fields)
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+                content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -162,6 +165,7 @@ class SentResource(Resource):
     def post(self):  
         parser = reqparse.RequestParser()
         parser.add_argument('status', location='json')
+        parser.add_argument('send_date', location='json')
         parser.add_argument('subject', location='json')
         parser.add_argument('content', location='json')
         parser.add_argument('device', location='json')
@@ -173,7 +177,7 @@ class SentResource(Resource):
         user_id = User.query.filter_by(id=claims['id']).first()
         user_id = user_id.id
 
-        sent = Sent(user_id, args['status'], args['subject'], args['content'],
+        sent = Sent(user_id, args['status'], args['send_date'], args['subject'], args['content'],
         args['device'], args['contact_id'], args['group_id'], 0, 0, 0)
 
         db.session.add(sent)
@@ -197,7 +201,7 @@ class SentResource(Resource):
 class SendMailDirect(Resource):
 
     # fungsi untuk mengirim email melalui mailjet
-    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
+    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage, passmail):
         app.config.update(dict(
             DEBUG = True,
             MAIL_SERVER = 'smtp.gmail.com',
@@ -205,7 +209,7 @@ class SendMailDirect(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',
+            MAIL_PASSWORD = passmail,
         ))
         mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
@@ -269,7 +273,7 @@ class SendMailDirect(Resource):
             marshalcustomer = marshal(customer, Customer.response_fields)
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
@@ -282,16 +286,31 @@ class getDraftById(Resource):
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('draft_id', location='json')
+        parser.add_argument('draft_id', location='args')
         args = parser.parse_args()
         claims = get_jwt_claims()
 
         qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        qry_draft = qry_sent.filter_by(id=args['draft_id']).first()
-
-        if qry_draft is not None:
-            return marshal(qry_draft, Sent.response_fields), 200
-        return {'status': 'NOT FOUND'}, 404
+        qry_draft = Sent.query.filter_by(id=args['draft_id']).first()
+        if qry_draft.group_id is None:
+            marshal_sent = marshal(qry_draft, Sent.response_fields)
+            return marshal_sent, 200
+        else:
+            qry_member = CustomerMember.query.filter_by(group_id=qry_draft.group_id)
+            qry_member_cus = CustomerMember.query.filter_by(group_id=qry_draft.group_id).first()
+            array_customer = []
+            for customer in qry_member:
+                customer = Customer.query.filter_by(id=customer.customer_id).first()
+                if customer.user_id==claims['id']:
+                    customer = marshal(customer, Customer.response_fields)
+                    array_customer.append(customer)
+            qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+            marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+            sent = marshal(qry_draft, Sent.response_fields)
+            sent['group_customer'] = marshal_group
+            sent['customer'] =array_customer
+            return sent, 200
+        return {'status': 'NOT_FOUND'}, 404
 
 class getAllDraft(Resource):
 
@@ -304,20 +323,24 @@ class getAllDraft(Resource):
         rows = []
         if qry is not None:
             for sent in qry:
-                qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
-                qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
-
-                array_customer = []
-                for customer in qry_member:
-                    customer = Customer.query.filter_by(id=customer.customer_id).first()
-                    customer = marshal(customer, Customer.response_fields)
-                    array_customer.append(customer)
-                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
-                marshal_group = marshal(qry_group, CustomerGroup.response_fields)
-                sent = marshal(sent, Sent.response_fields)
-                sent['group_customer'] = marshal_group
-                sent['customer'] =array_customer
-                rows.append(sent)
+                if sent.group_id is None:
+                    marshal_sent = marshal(sent, Sent.response_fields)
+                    rows.append(marshal_sent)
+                else:
+                    qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
+                    qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                    array_customer = []
+                    for customer in qry_member:
+                        customer = Customer.query.filter_by(id=customer.customer_id).first()
+                        if customer.user_id==claims['id']:
+                            customer = marshal(customer, Customer.response_fields)
+                            array_customer.append(customer)
+                    qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                    marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                    sent = marshal(sent, Sent.response_fields)
+                    sent['group_customer'] = marshal_group
+                    sent['customer'] =array_customer
+                    rows.append(sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
@@ -359,8 +382,9 @@ class getAllSent(Resource):
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
-                    customer = marshal(customer, Customer.response_fields)
-                    array_customer.append(customer)
+                    if customer.user_id==claims['id']:
+                        customer = marshal(customer, Customer.response_fields)
+                        array_customer.append(customer)
                 qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                 marshal_sent = marshal(sent, Sent.response_fields)

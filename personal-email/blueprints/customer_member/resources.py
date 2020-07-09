@@ -22,19 +22,20 @@ class CustomerMemberResource(Resource):
     @staff_required
     def get(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('group_id', location='json')
+        parser.add_argument('group_id', location='args')
         args = parser.parse_args()
         claims = get_jwt_claims()
         qry_customer = Customer.query.filter_by(user_id=claims['id'])
         qry_group = CustomerGroup.query.get(args["group_id"])
-        marshalgroup = marshal(qry_group,CustomerGroup.response_fields)
+        marshalgroup = marshal(qry_group, CustomerGroup.response_fields)
         qry_member = CustomerMember.query.filter_by(group_id=args['group_id'])
 
         rows = []
         for member in qry_member:
-            customer = Customer.query.filter_by(id=member.customer_id).first()    
-            marshalcustomer = marshal(customer,Customer.response_fields)
-            rows.append(marshalcustomer)
+            customer = Customer.query.filter_by(id=member.customer_id).first() 
+            if int(customer.user_id)==int(claims['id']):
+                marshalcustomer = marshal(customer,Customer.response_fields)
+                rows.append(marshalcustomer)
         marshalgroup["anggota"]= rows
         return marshalgroup,200
 
@@ -46,6 +47,11 @@ class CustomerMemberResource(Resource):
         parser.add_argument('group_id', location='json')
         args = parser.parse_args()
 
+        qry =  CustomerMember.query.filter_by(group_id=args['group_id'])
+        for member in qry:
+            print(marshal(member, CustomerMember.response_fields))
+            if int(member.customer_id) == int(args['customer_id']):
+                return {'MESSAGE': 'CUSTOMER_ID HAVE BEEN ADDED'}, 400
         customer_member = CustomerMember(args['customer_id'], args['group_id'])
 
         db.session.add(customer_member)

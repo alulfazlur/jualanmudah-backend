@@ -37,11 +37,14 @@ class CreateTokenResource(Resource):
 
 
 class RefreshTokenResource(Resource):
+    def options(self, id=None):
+        return {'status': 'ok'}, 200
 
     @jwt_required
     def post(self):
-        current_user = get_jwt_claims()
-        token = create_access_token(identity=current_user)
+        current_user = get_jwt_identity()
+        claims = get_jwt_claims()
+        token = create_access_token(identity=current_user, user_claims=claims)
         return {'token': token}, 200
 
 
