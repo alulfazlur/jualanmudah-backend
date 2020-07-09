@@ -15,7 +15,7 @@ class CustomerResource(Resource):
     @staff_required
     def get(self, id=None):
         claims = get_jwt_claims()
-        qry_user = Customer.query.filter_by(user_id=claims['id']).first()
+        qry_user = Customer.query.filter_by(user_id=claims['id'])
         qry = qry_user.filter_by(id=id).first()
         if qry is not None:
             return marshal(qry, Customer.response_fields), 200
