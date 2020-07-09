@@ -21,10 +21,10 @@ class UserContactGroupResource(Resource):
     @staff_required
     def get(self, id=None):
         qry = UserContactGroup.query.get(id)
-        if qry is not None:
-            QRY = marshal(qry, UserContactGroup.response_fields)
-            return QRY, 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        QRY = marshal(qry, UserContactGroup.response_fields)
+        return QRY, 200
+        # return {'status': 'NOT_FOUND'}, 404
 
     # post group contact
     @staff_required

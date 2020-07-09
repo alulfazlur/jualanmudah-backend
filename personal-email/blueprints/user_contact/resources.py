@@ -50,35 +50,35 @@ class UserContactResource(Resource):
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
-        else:
-            parser = reqparse.RequestParser()
-            parser.add_argument('user_id', location='json', required=True)
-            parser.add_argument('contact_id', location='json', required=True)
-            parser.add_argument('email_or_wa', location='json',required=True)
-            parser.add_argument('password', location='json')
-            args = parser.parse_args()
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
+        # else:
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', location='json', required=True)
+        parser.add_argument('contact_id', location='json', required=True)
+        parser.add_argument('email_or_wa', location='json',required=True)
+        parser.add_argument('password', location='json')
+        args = parser.parse_args()
 
-            if args['user_id'] is not None:
-                qry.user_id = args['user_id']
-            if args['contact_id'] is not None:
-                qry.contact_id = args['contact_id']
-            if args['email_or_wa'] is not None:
-                qry.email_or_wa = args['email_or_wa']
-            if args['password'] is not None:
-                qry.password = args['password']
-                
-            db.session.commit()
+        if args['user_id'] is not None:
+            qry.user_id = args['user_id']
+        if args['contact_id'] is not None:
+            qry.contact_id = args['contact_id']
+        if args['email_or_wa'] is not None:
+            qry.email_or_wa = args['email_or_wa']
+        if args['password'] is not None:
+            qry.password = args['password']
+            
+        db.session.commit()
 
-            return marshal(qry, UserContact.response_fields), 200
+        return marshal(qry, UserContact.response_fields), 200
 
     # delete an user contact
     @staff_required
     def delete(self, id):
         qry = UserContact.query.get(id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
 
@@ -99,8 +99,8 @@ class ListUserContact(Resource):
 
         claims = get_jwt_claims()
         qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
-        if qry_user_contact is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry_user_contact is None:
+        #     return {'status': 'NOT_FOUND'}, 404
 
         rows = []
         for row in qry_user_contact.limit(args['rp']).offset(offset).all():
@@ -128,8 +128,8 @@ class UserContactLeader(Resource):
         offset = (args['p']*args['rp']-args['rp'])
 
         qry_user_contact = UserContact.query.filter_by(user_id=args['user_id'])
-        if qry_user_contact is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry_user_contact is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         rows = []
         for row in qry_user_contact.limit(args['rp']).offset(offset).all():
             user = User.query.filter_by(id=row.user_id).first()
