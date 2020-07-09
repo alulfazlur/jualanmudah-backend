@@ -30,8 +30,9 @@ class CustomerGroupResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json')
         args = parser.parse_args()
+        claims = get_jwt_claims()
         
-        customer_group = CustomerGroup( args['name'])
+        customer_group = CustomerGroup( args['name'], claims['id'])
 
         db.session.add(customer_group)
         db.session.commit()
@@ -59,10 +60,10 @@ class ListCustomerGroup(Resource):
         parser.add_argument('rp', type=int, location='args', default=25)
 
         args = parser.parse_args()
+        claims = get_jwt_claims()
         offset = (args['p']*args['rp']-args['rp'])
-        qry = CustomerGroup.query
-        print("==============----------------------")
-        print(qry)
+        qry = CustomerGroup.query.filter_by(user_id=claims['id'])
+
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
         rows=[]

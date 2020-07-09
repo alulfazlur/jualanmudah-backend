@@ -9,6 +9,7 @@ class CustomerGroup(db.Model):
     __tablename__ = "customer_group"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(2000))
+    user_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
@@ -18,16 +19,15 @@ class CustomerGroup(db.Model):
     response_fields = {
         'id': fields.Integer,
         'name': fields.String,
+        'user_id': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
     }
 
-    def __init__(self, name):
+    def __init__(self, name, user_id):
 
         self.name = name
-
-        
-        
+        self.user_id = user_id     
 
     def __repr__(self):
         return '<CustomerGroup %r>' % self.id
