@@ -39,13 +39,16 @@ class SentResource(Resource):
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
+                print(marshal(qry_member_cus, CustomerGroup.response_fields))
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
                     customer = marshal(customer, Customer.response_fields)
                     array_customer.append(customer)
-                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id)
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+                print("==================++++++++++++++++-------------------------")
+                print(marshal_group)
                 sent = marshal(sent, Sent.response_fields)
                 sent['group_customer'] = marshal_group
                 sent['customer'] =array_customer
@@ -55,7 +58,7 @@ class SentResource(Resource):
 
     # fungsi untuk mengirim email melalui mailjet
     @staff_required
-    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
+    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage, passmail):
         app.config.update(dict(
             DEBUG = True,
             MAIL_SERVER = 'smtp.gmail.com',
@@ -63,7 +66,7 @@ class SentResource(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',
+            MAIL_PASSWORD = passmail,
         ))
         mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
@@ -141,7 +144,7 @@ class SentResource(Resource):
                 sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/response/sent_id=" + str(args['sent_id'])
+            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
@@ -149,7 +152,7 @@ class SentResource(Resource):
                 marshalcustomer = marshal(customer, Customer.response_fields)
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                content + "/customer_id=" + str(marshalcustomer['id']) + "/>")
+                content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -198,7 +201,7 @@ class SentResource(Resource):
 class SendMailDirect(Resource):
 
     # fungsi untuk mengirim email melalui mailjet
-    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage):
+    def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage, passmail):
         app.config.update(dict(
             DEBUG = True,
             MAIL_SERVER = 'smtp.gmail.com',
@@ -206,7 +209,7 @@ class SendMailDirect(Resource):
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False,
             MAIL_USERNAME = fmail,
-            MAIL_PASSWORD = 'bountyhunter',
+            MAIL_PASSWORD = passmail,
         ))
         mail = Mail(app)
         msg = Message(subject, sender = fmail, recipients = [tmail])
@@ -270,7 +273,7 @@ class SendMailDirect(Resource):
             marshalcustomer = marshal(customer, Customer.response_fields)
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "&customer_id=" + str(marshalcustomer['id']) + "/>")
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
