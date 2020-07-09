@@ -45,7 +45,7 @@ class SentResource(Resource):
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
                     customer = marshal(customer, Customer.response_fields)
                     array_customer.append(customer)
-                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id)
+                qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
                 print("==================++++++++++++++++-------------------------")
                 print(marshal_group)
