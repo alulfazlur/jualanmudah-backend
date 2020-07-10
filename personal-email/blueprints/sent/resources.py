@@ -292,8 +292,7 @@ class getDraftById(Resource):
         args = parser.parse_args()
         claims = get_jwt_claims()
 
-        qry_sent = Sent.query.filter_by(user_id=claims['id'])
-        qry_draft = Sent.query.filter_by(id=args['draft_id']).first()
+        qry_draft = Sent.query.get(args['draft_id'])
         if qry_draft.group_id is None:
             marshal_sent = marshal(qry_draft, Sent.response_fields)
             return marshal_sent, 200
