@@ -10,6 +10,7 @@ class UserContact(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     contact_group_id = db.Column(db.Integer, db.ForeignKey('user_contact_group.id'))
     email_or_wa = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50))
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
@@ -19,16 +20,17 @@ class UserContact(db.Model):
         'user_id': fields.Integer,
         'contact_group_id': fields.Integer,
         'email_or_wa': fields.String,
+        'password': fields.String,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
       
     }
 
-    def __init__(self, user_id, contact_group_id,email_or_wa):
-
+    def __init__(self, user_id, contact_group_id,email_or_wa,password):
         self.user_id = user_id
         self.contact_group_id = contact_group_id
         self.email_or_wa = email_or_wa
+        self.password = password
         
         
 

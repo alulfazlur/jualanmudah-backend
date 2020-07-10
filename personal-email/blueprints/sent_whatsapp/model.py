@@ -4,53 +4,40 @@ from sqlalchemy import Integer, ForeignKey, String, Column
 from sqlalchemy.orm import relationship
 
 
-class Sent(db.Model):
-    __tablename__ = "sent"
+class SentWhatsapp(db.Model):
+    __tablename__ = "sent_whatsapp"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer)
     send_date = db.Column(db.String(50))
     status = db.Column(db.String(50))
-    subject = db.Column(db.String(2000))
     content = db.Column(db.Text, nullable= False)
-    device = db.Column(db.String(50))
     contact_id = db.Column(db.Integer)
     group_id = db.Column(db.Integer)
-    open_rate = db.Column(db.Integer)
-    click_rate = db.Column(db.Integer)
     total_sent = db.Column(db.Integer)
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
-    track = db.relationship('Track', backref='sent', lazy=True)
     
     response_fields = {
         'id': fields.Integer,
         'user_id': fields.Integer,
         'status': fields.String,
         'send_date': fields.String,
-        'subject': fields.String,
         'content': fields.String,
-        'device' : fields.String,
         'contact_id': fields.Integer,
         'group_id': fields.Integer,
-        'open_rate': fields.Integer,
-        'click_rate': fields.Integer,
         'total_sent': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
 
     }
 
-    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, open_rate, click_rate, total_sent):
+    def __init__(self, user_id, status, send_date, content, contact_id, group_id, total_sent):
         self.user_id = user_id
         self.status = status
         self.send_date = send_date
-        self.subject = subject
-        self.content = content
-        self.device = device  
+        self.content = content 
         self.contact_id = contact_id
         self.group_id = group_id
-        self.open_rate = open_rate
-        self.click_rate = click_rate
         self.total_sent = total_sent
 
     def __repr__(self):
