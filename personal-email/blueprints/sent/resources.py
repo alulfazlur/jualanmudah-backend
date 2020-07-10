@@ -262,7 +262,7 @@ class SendMailDirect(Resource):
             sent_time = datetime.datetime(year,month,day,hour,mins,sec)
             time.sleep(sent_time.timestamp()- time.time())
         elif args['send_date'] == "now":
-            sent.send_date = str(datetime.datetime.now())
+            Sent.send_date = str(datetime.datetime.now())
             db.session.commit()
             pass
         str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
@@ -274,7 +274,7 @@ class SendMailDirect(Resource):
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
             content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
-            track = Track(sent.id, member.customer_id, "", "")
+            track = Track(Sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
