@@ -20,7 +20,8 @@ class Customer(db.Model):
     created_at = db.Column(db.DateTime(timezone=True),
                            server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
-    customer_member = db.relationship('CustomerMember', backref='customer', lazy=True)
+    # customer_member = db.relationship('CustomerMember', backref='customer', lazy=True)
+    customer_member = db.relationship('CustomerMember', cascade="all, delete-orphan", passive_deletes=True)
 
     response_fields = {
         'id': fields.Integer,

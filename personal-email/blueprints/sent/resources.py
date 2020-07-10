@@ -141,7 +141,7 @@ class SentResource(Resource):
                 sent_time = datetime.datetime(year,month,day,hour,mins,sec)
                 time.sleep(sent_time.timestamp()- time.time())
             elif args['send_date'] == "now":
-                sent.send_date = str(datetime.datetime.now())
+                qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
             str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
@@ -150,9 +150,10 @@ class SentResource(Resource):
                 customer = Customer.query.filter_by(user_id=claims['id'])
                 customer = customer.filter_by(id=member.customer_id).first()
                 marshalcustomer = marshal(customer, Customer.response_fields)
+                name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+                name_customer + content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -269,9 +270,10 @@ class SendMailDirect(Resource):
             customer = Customer.query.filter_by(user_id=claims['id'])
             customer = customer.filter_by(id=member.customer_id).first()
             marshalcustomer = marshal(customer, Customer.response_fields)
+            name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+            name_customer + content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
@@ -288,8 +290,12 @@ class getDraftById(Resource):
         args = parser.parse_args()
         claims = get_jwt_claims()
 
+
+        qry_draft = Sent.query.get(args['draft_id'])
+
  
         qry_draft = Sent.query.filter_by(id=args['draft_id']).first()
+
         if qry_draft.group_id is None:
             marshal_sent = marshal(qry_draft, Sent.response_fields)
             return marshal_sent, 200
@@ -342,9 +348,52 @@ class getAllDraft(Resource):
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
+class getSentById(Resource):
+
+    # get sent by id
+    @staff_required
+    def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('sent_id', location='args')
+        args = parser.parse_args()
+        claims = get_jwt_claims()
+
+        qry = Sent.query.get(args['sent_id'])
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+
+        qry_track = Track.query.filter_by(sent_id=qry.id)
+        count_open_rate = 0
+        count_click_rate = 0
+        count_total = 0
+        track_list = []
+        for track in qry_track:
+            count_total += 1
+            customer = Customer.query.filter_by(id=track.customer_id).first()
+            if track.status_open == "opened":
+                count_open_rate += 1
+            elif track.status_click == "clicked":
+                count_click_rate += 1
+            marshaltrack = marshal(track, Track.response_fields)
+            marshalcustomer= marshal(customer, Customer.response_fields)
+            marshaltrack['customer'] = marshalcustomer
+            track_list.append(marshaltrack)
+        qry.open_rate = count_open_rate
+        qry.click_rate = count_click_rate
+        qry.total_sent = count_total
+        db.session.commit()
+        qry_member_cus = CustomerMember.query.filter_by(group_id=qry.group_id).first()
+        qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+        marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+        marshal_sent = marshal(qry, Sent.response_fields)
+        marshal_sent['group_customer'] = marshal_group
+        marshal_sent['track'] = track_list
+        return marshal_sent, 200
+        
+
 class getAllSent(Resource):
 
-    # get all list only draft 
+    # get all list only sent
     @staff_required
     def get(self, id=None):
         claims = get_jwt_claims()
@@ -398,4 +447,5 @@ api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '/<id>')
 api.add_resource(getAllDraft, '/draft-list', '/<id>')
+api.add_resource(getSentById, '/sent-id', '/<id>')
 api.add_resource(getAllSent, '/sent-list', '/<id>')

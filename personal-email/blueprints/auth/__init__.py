@@ -25,7 +25,7 @@ class CreateTokenResource(Resource):
         if hash_pass == qry_user.password:
             qry_user = marshal(qry_user, User.jwt_claim_fields)
             token = create_access_token(
-                identity=args['username'], user_claims=qry_user)
+                identity=args['username'], user_claims=qry_user, expires_delta=False)
             return {'token': token}, 200
         else:
             return {'status': 'UNAUTHORIZED', 'message': 'invalid key or secret'}, 401
