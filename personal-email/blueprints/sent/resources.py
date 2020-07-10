@@ -344,9 +344,58 @@ class getAllDraft(Resource):
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
 
+class getSentById(Resource):
+
+    # get sent by id
+    @staff_required
+    def get(self, id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('sent_id', location='args')
+        args = parser.parse_args()
+        claims = get_jwt_claims()
+
+        qry = Sent.query.get(args['sent_id'])
+        if qry is None:
+            return {'status': 'NOT_FOUND'}, 404
+        qry_track = Track.query.filter_by(sent_id=qry.id)
+        count_open_rate = 0
+        count_click_rate = 0
+        count_total = 0
+        track_list = []
+        for track in qry_track:
+            count_total += 1
+            if track.status_open == "opened":
+                count_open_rate += 1
+            elif track.status_click == "clicked":
+                count_click_rate += 1
+            marshaltrack = marshal(track, Track.response_fields)
+            track_list.append(marshaltrack)
+        qry.open_rate = count_open_rate
+        qry.click_rate = count_click_rate
+        qry.total_sent = count_total
+        db.session.commit()
+
+        qry_member = CustomerMember.query.filter_by(group_id=qry.group_id)
+        qry_member_cus = CustomerMember.query.filter_by(group_id=qry.group_id).first()
+
+        array_customer = []
+        for customer in qry_member:
+            customer = Customer.query.filter_by(id=customer.customer_id).first()
+            if customer.user_id==claims['id']:
+                customer = marshal(customer, Customer.response_fields)
+                array_customer.append(customer)
+        qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
+        marshal_group = marshal(qry_group, CustomerGroup.response_fields)
+        marshal_sent = marshal(qry, Sent.response_fields)
+        marshal_sent['group_customer'] = marshal_group
+        marshal_sent['customer'] = array_customer
+        marshal_sent['track'] = track_list
+        return marshal_sent, 200
+        
+
 class getAllSent(Resource):
 
-    # get all list only draft 
+    # get all list only sent
     @staff_required
     def get(self, id=None):
         claims = get_jwt_claims()
@@ -400,4 +449,5 @@ api.add_resource(SentResource, '', '/<id>')
 api.add_resource(SendMailDirect, '/direct', '/<id>')
 api.add_resource(getDraftById, '/draft', '/<id>')
 api.add_resource(getAllDraft, '/draft-list', '/<id>')
+api.add_resource(getSentById, '/sent-id', '/<id>')
 api.add_resource(getAllSent, '/sent-list', '/<id>')
