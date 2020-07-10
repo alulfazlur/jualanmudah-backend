@@ -150,9 +150,10 @@ class SentResource(Resource):
                 customer = Customer.query.filter_by(user_id=claims['id'])
                 customer = customer.filter_by(id=member.customer_id).first()
                 marshalcustomer = marshal(customer, Customer.response_fields)
+                name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+                name_customer + content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -271,9 +272,10 @@ class SendMailDirect(Resource):
             customer = Customer.query.filter_by(user_id=claims['id'])
             customer = customer.filter_by(id=member.customer_id).first()
             marshalcustomer = marshal(customer, Customer.response_fields)
+            name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+            name_customer + content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
