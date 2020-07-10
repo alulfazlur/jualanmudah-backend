@@ -39,7 +39,7 @@ class SentResource(Resource):
             for sent in qry:
                 qry_member = CustomerMember.query.filter_by(group_id=sent.group_id)
                 qry_member_cus = CustomerMember.query.filter_by(group_id=sent.group_id).first()
-                print(marshal(qry_member_cus, CustomerGroup.response_fields))
+                # print(marshal(qry_member_cus, CustomerGroup.response_fields))
                 array_customer = []
                 for customer in qry_member:
                     customer = Customer.query.filter_by(id=customer.customer_id).first()
@@ -47,8 +47,8 @@ class SentResource(Resource):
                     array_customer.append(customer)
                 qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
                 marshal_group = marshal(qry_group, CustomerGroup.response_fields)
-                print("==================++++++++++++++++-------------------------")
-                print(marshal_group)
+                # print("==================++++++++++++++++-------------------------")
+                # print(marshal_group)
                 sent = marshal(sent, Sent.response_fields)
                 sent['group_customer'] = marshal_group
                 sent['customer'] =array_customer
@@ -195,8 +195,6 @@ class SentResource(Resource):
         db.session.delete(qry)
         db.session.commit()
 
-    def options(self):
-        return {}, 200
 
 class SendMailDirect(Resource):
 
@@ -290,7 +288,7 @@ class getDraftById(Resource):
         args = parser.parse_args()
         claims = get_jwt_claims()
 
-        qry_sent = Sent.query.filter_by(user_id=claims['id'])
+ 
         qry_draft = Sent.query.filter_by(id=args['draft_id']).first()
         if qry_draft.group_id is None:
             marshal_sent = marshal(qry_draft, Sent.response_fields)

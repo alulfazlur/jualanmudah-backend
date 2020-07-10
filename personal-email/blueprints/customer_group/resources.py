@@ -20,9 +20,9 @@ class CustomerGroupResource(Resource):
     @staff_required
     def get(self, id=None):
         qry = CustomerGroup.query.get(id)
-        if qry is not None:
-            return marshal(qry, CustomerGroup.response_fields), 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        return marshal(qry, CustomerGroup.response_fields), 200
+        # return {'status': 'NOT_FOUND'}, 404
 
     # post customer group
     @staff_required
@@ -43,8 +43,8 @@ class CustomerGroupResource(Resource):
     @staff_required
     def delete(self, id):
         qry = CustomerGroup.query.get(id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
 
@@ -63,8 +63,8 @@ class ListCustomerGroup(Resource):
         qry = CustomerGroup.query
         print("==============----------------------")
         print(qry)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         rows=[]
         for row in qry.offset(offset).all():
             marshal_group= marshal(row, CustomerGroup.response_fields)

@@ -130,12 +130,6 @@ app.register_blueprint(bp_customer_member, url_prefix='/customer-member')
 from blueprints.customer_group.resources import bp_customer_group
 app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
 
-from blueprints.send_mailjet.resources import bp_mailjet
-app.register_blueprint(bp_mailjet, url_prefix='/mailjet')
-
-from blueprints.send_flask_mail.resources import bp_flaskmail
-app.register_blueprint(bp_flaskmail, url_prefix='/flaskmail')
-
 from blueprints.sent.resources import bp_sent
 app.register_blueprint(bp_sent, url_prefix='/sent' )
 
