@@ -11,8 +11,10 @@ from flask_script import Manager
 from logging.handlers import RotatingFileHandler
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_claims
 from flask_cors import CORS, cross_origin
+from werkzeug.contrib.cache import SimpleCache
 # from flask_mail import Mail
 
+cache = SimpleCache()
 
 app = Flask(__name__)
 CORS(app, origins="*", allow_headers=[
@@ -64,10 +66,7 @@ def staff_required(fn):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt_claims()
-        if claims['status'] != "staff" :
-            return {'status': 'FORBIDDEN', 'message': 'Internal Only!'}, 403
-        else:
-            return fn(*args, **kwargs)
+        return fn(*args, **kwargs)
     return wrapper
 
 if os.environ.get('FLASK_ENV', 'Production') == "Production":
@@ -131,18 +130,17 @@ app.register_blueprint(bp_customer_member, url_prefix='/customer-member')
 from blueprints.customer_group.resources import bp_customer_group
 app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
 
-from blueprints.send_mailjet.resources import bp_mailjet
-app.register_blueprint(bp_mailjet, url_prefix='/mailjet')
-
-from blueprints.send_flask_mail.resources import bp_flaskmail
-app.register_blueprint(bp_flaskmail, url_prefix='/flaskmail')
-
 from blueprints.sent.resources import bp_sent
 app.register_blueprint(bp_sent, url_prefix='/sent' )
 
 from blueprints.tracking.resources import bp_track
 app.register_blueprint(bp_track, url_prefix='/track')
 
+from blueprints.admin.resources import bp_admin
+app.register_blueprint(bp_admin, url_prefix='/admin')
+
+from blueprints.input_excel.resources import bp_input_node
+app.register_blueprint(bp_input_node, url_prefix='/input-excel')
 
 
 db.create_all()
