@@ -29,10 +29,11 @@ class CustomerGroupResource(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json')
+        parser.add_argument('status', location='json')
         args = parser.parse_args()
         claims = get_jwt_claims()
         
-        customer_group = CustomerGroup( args['name'], claims['id'])
+        customer_group = CustomerGroup( args['name'], claims['id'], args['status'])
 
         db.session.add(customer_group)
         db.session.commit()
@@ -42,11 +43,11 @@ class CustomerGroupResource(Resource):
 
     # delete customer group
     @staff_required
-    def delete(self, id):
+    def patch(self, id):
         qry = CustomerGroup.query.get(id)
+        qry.status = False
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
-        db.session.delete(qry)
         db.session.commit()
 
 
