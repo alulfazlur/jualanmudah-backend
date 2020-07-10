@@ -144,7 +144,7 @@ class SentResource(Resource):
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
+            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
@@ -153,7 +153,7 @@ class SentResource(Resource):
                 name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                name_customer + content + "/customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+                name_customer + content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
                 track = Track(args['sent_id'], member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
