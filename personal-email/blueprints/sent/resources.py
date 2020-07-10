@@ -141,7 +141,7 @@ class SentResource(Resource):
                 sent_time = datetime.datetime(year,month,day,hour,mins,sec)
                 time.sleep(sent_time.timestamp()- time.time())
             elif args['send_date'] == "now":
-                sent.send_date = str(datetime.datetime.now())
+                qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
             str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
@@ -262,7 +262,7 @@ class SendMailDirect(Resource):
             sent_time = datetime.datetime(year,month,day,hour,mins,sec)
             time.sleep(sent_time.timestamp()- time.time())
         elif args['send_date'] == "now":
-            Sent.send_date = str(datetime.datetime.now())
+            sent.send_date = str(datetime.datetime.now())
             db.session.commit()
             pass
         str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
@@ -274,7 +274,7 @@ class SendMailDirect(Resource):
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
             content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
-            track = Track(Sent.id, member.customer_id, "", "")
+            track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
@@ -357,6 +357,7 @@ class getSentById(Resource):
         qry = Sent.query.get(args['sent_id'])
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
+
         qry_track = Track.query.filter_by(sent_id=qry.id)
         count_open_rate = 0
         count_click_rate = 0
@@ -364,31 +365,24 @@ class getSentById(Resource):
         track_list = []
         for track in qry_track:
             count_total += 1
+            customer = Customer.query.filter_by(id=track.customer_id).first()
             if track.status_open == "opened":
                 count_open_rate += 1
             elif track.status_click == "clicked":
                 count_click_rate += 1
             marshaltrack = marshal(track, Track.response_fields)
+            marshalcustomer= marshal(customer, Customer.response_fields)
+            marshaltrack['customer'] = marshalcustomer
             track_list.append(marshaltrack)
         qry.open_rate = count_open_rate
         qry.click_rate = count_click_rate
         qry.total_sent = count_total
         db.session.commit()
-
-        qry_member = CustomerMember.query.filter_by(group_id=qry.group_id)
         qry_member_cus = CustomerMember.query.filter_by(group_id=qry.group_id).first()
-
-        array_customer = []
-        for customer in qry_member:
-            customer = Customer.query.filter_by(id=customer.customer_id).first()
-            if customer.user_id==claims['id']:
-                customer = marshal(customer, Customer.response_fields)
-                array_customer.append(customer)
         qry_group = CustomerGroup.query.filter_by(id=qry_member_cus.group_id).first()
         marshal_group = marshal(qry_group, CustomerGroup.response_fields)
         marshal_sent = marshal(qry, Sent.response_fields)
         marshal_sent['group_customer'] = marshal_group
-        marshal_sent['customer'] = array_customer
         marshal_sent['track'] = track_list
         return marshal_sent, 200
         
