@@ -144,7 +144,7 @@ class SentResource(Resource):
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            str_get = "<img style='display: none'; src=https://lolbe.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
+            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/sent_id=" + str(args['sent_id'])
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
