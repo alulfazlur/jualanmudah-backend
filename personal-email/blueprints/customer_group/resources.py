@@ -20,9 +20,9 @@ class CustomerGroupResource(Resource):
     @staff_required
     def get(self, id=None):
         qry = CustomerGroup.query.get(id)
-        if qry is not None:
-            return marshal(qry, CustomerGroup.response_fields), 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        return marshal(qry, CustomerGroup.response_fields), 200
+        # return {'status': 'NOT_FOUND'}, 404
 
     # post customer group
     @staff_required
@@ -45,9 +45,14 @@ class CustomerGroupResource(Resource):
     @staff_required
     def patch(self, id):
         qry = CustomerGroup.query.get(id)
+
         qry.status = False
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
+
+     
+        db.session.delete(qry)
+
         db.session.commit()
 
 
@@ -63,10 +68,18 @@ class ListCustomerGroup(Resource):
         args = parser.parse_args()
         claims = get_jwt_claims()
         offset = (args['p']*args['rp']-args['rp'])
+
         qry = CustomerGroup.query.filter_by(user_id=claims['id'])
 
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
+
+        qry = CustomerGroup.query
+        print("==============----------------------")
+        print(qry)
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
+
         rows=[]
         for row in qry.offset(offset).all():
             marshal_group= marshal(row, CustomerGroup.response_fields)

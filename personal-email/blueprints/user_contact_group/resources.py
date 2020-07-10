@@ -47,26 +47,26 @@ class UserContactGroupResource(Resource):
     def patch(self, id):
         claims = get_jwt_claims()
         qry = User.query.filter_by(id=claims['id']).first()
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
-        else:
-            parser = reqparse.RequestParser()
-            parser.add_argument('name', location='json', required=True)
-          
-            args = parser.parse_args()
-            qry.name = args['name']
-            qry.contact_id = args['contact_id']
-            qry.email_or_wa = args['email_or_wa']  
-            db.session.commit()
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
+        # else:
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', location='json', required=True)
+        
+        args = parser.parse_args()
+        qry.name = args['name']
+        # qry.contact_id = args['contact_id']
+        # qry.email_or_wa = args['email_or_wa']  
+        db.session.commit()
 
-            return marshal(qry, UserContactGroup.response_fields), 200
+        return marshal(qry, UserContactGroup.response_fields), 200
 
     # delete contact group
     @staff_required
     def delete(self, id):
         qry = UserContactGroup.query.get(id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
 

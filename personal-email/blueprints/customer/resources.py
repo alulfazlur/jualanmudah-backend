@@ -13,13 +13,13 @@ api = Api(bp_customer)
 class CustomerResource(Resource):
 
     @staff_required
-    def get(self, id=None):
+    def get(self,id):
         claims = get_jwt_claims()
         qry_user = Customer.query.filter_by(user_id=claims['id'])
         qry = qry_user.filter_by(id=id).first()
-        if qry is not None:
-            return marshal(qry, Customer.response_fields), 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        return marshal(qry, Customer.response_fields), 200
+        # return {'status': 'NOT_FOUND'}, 404
 
     @staff_required
     def post(self):
@@ -51,8 +51,8 @@ class CustomerResource(Resource):
     @staff_required
     def delete(self, id):
         qry = Customer.query.get(id)
-        if qry is None:
-            return {'status': 'NOT_FOUND'}, 404
+        # if qry is None:
+        #     return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
 
@@ -70,13 +70,13 @@ class ListCustomer(Resource):
         offset = (args['p']*args['rp']-args['rp'])
 
         qry = Customer.query.filter_by(user_id=claims['id'])
-        if qry is not None:
-            rows = []
-            for row in qry.limit(args['rp']).offset(offset).all():
-                marshalcustomer = marshal(row, Customer.response_fields)
-                rows.append(marshalcustomer)
-            return rows, 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        rows = []
+        for row in qry.limit(args['rp']).offset(offset).all():
+            marshalcustomer = marshal(row, Customer.response_fields)
+            rows.append(marshalcustomer)
+        return rows, 200
+        # return {'status': 'NOT_FOUND'}, 404
 
 class LeaderCustomer(Resource):
 
@@ -92,13 +92,13 @@ class LeaderCustomer(Resource):
         offset = (args['p']*args['rp']-args['rp'])
 
         qry = Customer.query.filter_by(user_id=args['user_id'])
-        if qry is not None:
-            rows = []
-            for row in qry.limit(args['rp']).offset(offset).all():
-                marshalcustomer = marshal(row, Customer.response_fields)
-                rows.append(marshalcustomer)
-            return rows, 200
-        return {'status': 'NOT_FOUND'}, 404
+        # if qry is not None:
+        rows = []
+        for row in qry.limit(args['rp']).offset(offset).all():
+            marshalcustomer = marshal(row, Customer.response_fields)
+            rows.append(marshalcustomer)
+        return rows, 200
+        # return {'status': 'NOT_FOUND'}, 404
 
     # post data customer staff for leader
     @leader_required
