@@ -71,15 +71,8 @@ class ListCustomerGroup(Resource):
 
         qry = CustomerGroup.query.filter_by(user_id=claims['id'])
 
-        if qry is None:
+        if qry.first() is None:
             return {'status': 'NOT_FOUND'}, 404
-
-        qry = CustomerGroup.query
-        print("==============----------------------")
-        print(qry)
-        # if qry is None:
-        #     return {'status': 'NOT_FOUND'}, 404
-
         rows=[]
         for row in qry.offset(offset).all():
             marshal_group= marshal(row, CustomerGroup.response_fields)
