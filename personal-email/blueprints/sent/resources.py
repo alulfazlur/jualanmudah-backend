@@ -264,7 +264,7 @@ class SendMailDirect(Resource):
             sent.send_date = str(datetime.datetime.now())
             db.session.commit()
             pass
-        str_get = "<img style='display: none'; src=http://0.0.0.0:5050/track/open?sent_id=" + str(sent.id)
+        str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
             customer = Customer.query.filter_by(user_id=claims['id'])

@@ -10,7 +10,7 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     First_name = db.Column(db.String(2000))
     last_name = db.Column(db.String(2000))
-    email = db.Column(db.String(200), unique=True, nullable=False)
+    email = db.Column(db.String(200), nullable=False)
     phone = db.Column(db.String(2000))
     bod = db.Column(db.DateTime)
     address = db.Column(db.String(2000))
