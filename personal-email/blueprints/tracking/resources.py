@@ -55,7 +55,7 @@ class TrackOpen(Resource):
 
 class TrackClick(Resource):
       # @staff_required
-    def get(self, id=None):
+    def post(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('sent_id', location='args')
         parser.add_argument('customer_id', location='args')
