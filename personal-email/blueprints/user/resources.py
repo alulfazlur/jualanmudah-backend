@@ -96,8 +96,8 @@ class UserStaff(Resource):
 
         return marshal(qry, User.response_fields), 200
 
-    # def options(self):
-    #     return {}, 200
+    def options(self):
+        return {}, 200
 
 class UserLeader(Resource):
 
@@ -158,6 +158,9 @@ class UserLeader(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+
+    def options(self):
+        return {}, 200
 
 api.add_resource(UserStaff, '', '/<id>')
 api.add_resource(UserLeader, '/leader', '/<id>')

@@ -207,6 +207,8 @@ class SentResource(Resource):
         db.session.delete(qry)
         db.session.commit()
 
+    def options(self):
+        return {}, 200
 
 class SendMailDirect(Resource):
 
@@ -296,6 +298,9 @@ class SendMailDirect(Resource):
             db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
+    
+    def options(self):
+        return {}, 200
 
 class getDraftById(Resource):
 
@@ -333,6 +338,9 @@ class getDraftById(Resource):
             return sent, 200
         return {'status': 'NOT_FOUND'}, 404
 
+    def options(self):
+        return {}, 200
+
 class getAllDraft(Resource):
 
     # get all list only draft 
@@ -364,6 +372,9 @@ class getAllDraft(Resource):
                     rows.append(sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 class getSentById(Resource):
 
@@ -406,6 +417,9 @@ class getSentById(Resource):
         marshal_sent['group_customer'] = marshal_group
         marshal_sent['track'] = track_list
         return marshal_sent, 200
+    
+    def options(self):
+        return {}, 200
         
 
 class getAllSent(Resource):
@@ -458,6 +472,9 @@ class getAllSent(Resource):
                 rows.append(marshal_sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 
 api.add_resource(SentResource, '', '/<id>')
