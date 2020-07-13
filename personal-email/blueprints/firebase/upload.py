@@ -38,3 +38,6 @@ class UploadToFirebase :
 
             # if eror it will return link of default image inside folder images/error/
             return link
+    
+    def options(self):
+        return {}, 200

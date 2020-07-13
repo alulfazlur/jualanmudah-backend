@@ -65,9 +65,9 @@ def init_database():
     db.session.add(customer)
     db.session.commit()
     
-    customer_group = CustomerGroup(name="manager")
+    customer_group = CustomerGroup(name="manager",status=True,user_id=2)
     db.session.add(customer_group)
-    customer_group = CustomerGroup(name="staff")
+    customer_group = CustomerGroup(name="staff",status=True,user_id=3)
     db.session.add(customer_group)
     db.session.commit()
     

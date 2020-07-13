@@ -21,6 +21,8 @@ class Sent(db.Model):
     created_at = db.Column(db.DateTime(timezone=True),server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     track = db.relationship('Track', backref='sent', lazy=True)
+    words = db.Column(db.String(20))
+    link = db.Column(db.String(400))
     
     response_fields = {
         'id': fields.Integer,
@@ -37,10 +39,13 @@ class Sent(db.Model):
         'total_sent': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
+        'words': fields.String,
+        'link': fields.String
 
     }
 
-    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, open_rate, click_rate, total_sent):
+    def __init__(self, user_id, status, send_date, subject, content, device, contact_id, group_id, 
+    open_rate, click_rate, total_sent, words, link):
         self.user_id = user_id
         self.status = status
         self.send_date = send_date
@@ -52,6 +57,8 @@ class Sent(db.Model):
         self.open_rate = open_rate
         self.click_rate = click_rate
         self.total_sent = total_sent
+        self.words = words
+        self.link = link
 
     def __repr__(self):
         return '<Sent %r>' % self.id
