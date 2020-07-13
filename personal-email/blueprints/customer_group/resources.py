@@ -45,16 +45,14 @@ class CustomerGroupResource(Resource):
     @staff_required
     def patch(self, id):
         qry = CustomerGroup.query.get(id)
-
         qry.status = False
         if qry is None:
             return {'status': 'NOT_FOUND'}, 404
-
-     
-        db.session.delete(qry)
-
         db.session.commit()
+        return marshal(qry, CustomerGroup.response_fields), 200
 
+    def options(self):
+        return {}, 200
 
 class ListCustomerGroup(Resource):
 
@@ -78,6 +76,9 @@ class ListCustomerGroup(Resource):
             marshal_group= marshal(row, CustomerGroup.response_fields)
             rows.append(marshal_group)
         return rows, 200
+    
+    def options(self):
+        return {}, 200
         
 api.add_resource(CustomerGroupResource, '', '/<id>')
 api.add_resource(ListCustomerGroup, '/list', '/<id>')

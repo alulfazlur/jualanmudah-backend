@@ -35,6 +35,9 @@ class CreateTokenResource(Resource):
         claims = get_jwt_claims()
         return {'claims': claims}, 200
 
+    def options(self):
+        return {}, 200
+
 
 class RefreshTokenResource(Resource):
     def options(self, id=None):

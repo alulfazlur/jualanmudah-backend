@@ -86,7 +86,9 @@ class SentResource(Resource):
         parser.add_argument('content', location='json')
         parser.add_argument('device', location='json')
         parser.add_argument('contact_id', location='json')
-        parser.add_argument('group_id', location='json')  
+        parser.add_argument('group_id', location='json')
+        parser.add_argument('words', location='json')
+        parser.add_argument('link', location='json')  
 
         args = parser.parse_args()
         claims = get_jwt_claims()
@@ -113,6 +115,10 @@ class SentResource(Resource):
                 qry.contact_id = args['contact_id']
             if args['group_id'] is not None:
                 qry.group_id = args['group_id']
+            if args['words'] is not None:
+                qry.words = args['words']
+            if args['link'] is not None:
+                qry.link = args['link']
 
             db.session.commit()
 
@@ -144,17 +150,20 @@ class SentResource(Resource):
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(args['sent_id'])
+            linked = "<a href=" + str(args['link']) + " ping=https://slytherin.perintiscerita.shop/track/click?sent_id=" + str(qry.id)
+            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(qry.id)
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
                 customer = customer.filter_by(id=member.customer_id).first()
                 marshalcustomer = marshal(customer, Customer.response_fields)
-                name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
+                name_customer = "<p><b>Dear " + marshalcustomer['First_name'] + "</b></p>"
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
-                marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-                name_customer + content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
-                track = Track(args['sent_id'], member.customer_id, "", "")
+                marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
+                content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
+                str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
+                str(marshalcustomer['First_name']) +"</b></p>", marshaluserMail['password'])
+                track = Track(qry.id, member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
             app.logger.debug('DEBUG : %s', qry)
@@ -172,6 +181,8 @@ class SentResource(Resource):
         parser.add_argument('device', location='json')
         parser.add_argument('contact_id', location='json')
         parser.add_argument('group_id', location='json')
+        parser.add_argument('words', location='json')
+        parser.add_argument('link', location='json')
         args = parser.parse_args()
         
         claims = get_jwt_claims()
@@ -179,7 +190,7 @@ class SentResource(Resource):
         user_id = user_id.id
 
         sent = Sent(user_id, args['status'], args['send_date'], args['subject'], args['content'],
-        args['device'], args['contact_id'], args['group_id'], 0, 0, 0)
+        args['device'], args['contact_id'], args['group_id'], 0, 0, 0, args['words'], args['link'])
 
         db.session.add(sent)
         db.session.commit()
@@ -196,10 +207,13 @@ class SentResource(Resource):
         db.session.delete(qry)
         db.session.commit()
 
+    def options(self):
+        return {}, 200
 
 class SendMailDirect(Resource):
 
     # fungsi untuk mengirim email melalui mailjet
+    @staff_required
     def sendMessage(self, fmail, fname, tmail, tname, subject, HTMLmessage, passmail):
         app.config.update(dict(
             DEBUG = True,
@@ -227,6 +241,8 @@ class SendMailDirect(Resource):
         parser.add_argument('device', location='json', required=True)
         parser.add_argument('contact_id', location='json', required=True)
         parser.add_argument('group_id', location='json', required=True)
+        parser.add_argument('words', location='json', required=True)
+        parser.add_argument('link', location='json', required=True)
         args = parser.parse_args() 
         claims = get_jwt_claims()
 
@@ -242,7 +258,7 @@ class SendMailDirect(Resource):
         
         # save to database
         sent = Sent(user_id, args['status'], args['send_date'], args['subject'], 
-        args['content'], args['device'],args['contact_id'], args['group_id'], 0, 0, 0)
+        args['content'], args['device'],args['contact_id'], args['group_id'], 0, 0, 0, args['words'], args['link'])
         db.session.add(sent)
         db.session.commit()
 
@@ -264,21 +280,27 @@ class SendMailDirect(Resource):
             sent.send_date = str(datetime.datetime.now())
             db.session.commit()
             pass
+        linked = "<a href=" + str(args['link']) + " ping=https://slytherin.perintiscerita.shop/track/click?sent_id=" + str(sent.id)
         str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
             customer = Customer.query.filter_by(user_id=claims['id'])
             customer = customer.filter_by(id=member.customer_id).first()
             marshalcustomer = marshal(customer, Customer.response_fields)
-            name_customer = "<p>kepada " + marshalcustomer['First_name'] + "</p>"
+            name_customer = "<p><b>Dear " + marshalcustomer['First_name'] + "</b></p>"
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
-            marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], 
-            name_customer + content + "&customer_id=" + str(marshalcustomer['id']) + "/>", marshaluserMail['password'])
+            marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
+            str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
+            str(marshalcustomer['First_name']) +"</b></p>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()
         app.logger.debug('DEBUG : %s', sent)
         return marshal(sent, Sent.response_fields), 200
+    
+    def options(self):
+        return {}, 200
 
 class getDraftById(Resource):
 
@@ -316,6 +338,9 @@ class getDraftById(Resource):
             return sent, 200
         return {'status': 'NOT_FOUND'}, 404
 
+    def options(self):
+        return {}, 200
+
 class getAllDraft(Resource):
 
     # get all list only draft 
@@ -347,6 +372,9 @@ class getAllDraft(Resource):
                     rows.append(sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 class getSentById(Resource):
 
@@ -389,6 +417,9 @@ class getSentById(Resource):
         marshal_sent['group_customer'] = marshal_group
         marshal_sent['track'] = track_list
         return marshal_sent, 200
+    
+    def options(self):
+        return {}, 200
         
 
 class getAllSent(Resource):
@@ -441,6 +472,9 @@ class getAllSent(Resource):
                 rows.append(marshal_sent)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 
 api.add_resource(SentResource, '', '/<id>')

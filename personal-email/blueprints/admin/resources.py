@@ -76,6 +76,9 @@ class UserAdminListStaff(Resource):
                 rows.append(marshalstaff)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 class SentAdmin(Resource):
 
@@ -119,6 +122,9 @@ class SentAdmin(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 class CustomerAdmin(Resource):
 
@@ -150,6 +156,9 @@ class CustomerAdmin(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 class MemberCustomerAdmin(Resource):
 
@@ -187,6 +196,9 @@ class MemberCustomerAdmin(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 class UserContactAdmin(Resource):
 
@@ -224,6 +236,9 @@ class UserContactAdmin(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 api.add_resource(UserAdminListLeader, '/user-leader', '/<id>')
 api.add_resource(UserAdminListStaff, '/user-staff', '/<id>')

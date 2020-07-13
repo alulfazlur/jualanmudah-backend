@@ -68,6 +68,9 @@ class CustomerMemberResource(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 class LeaderCustomerMember(Resource):
 
@@ -89,6 +92,9 @@ class LeaderCustomerMember(Resource):
             rows.append(marshalcustomer)
         marshalgroup["anggota"]= rows
         return marshalgroup, 200
+    
+    def options(self):
+        return {}, 200
 
 
 api.add_resource(CustomerMemberResource, '', '/<id>')
