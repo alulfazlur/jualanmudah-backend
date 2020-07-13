@@ -34,6 +34,9 @@ class TrackList(Resource):
                 rows.append(marshal_track)
             return rows, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
         
 class TrackOpen(Resource):
 
@@ -52,10 +55,13 @@ class TrackOpen(Resource):
             QRY = marshal(qry, Track.response_fields) 
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 class TrackClick(Resource):
       # @staff_required
-    def get(self, id=None):
+    def post(self, id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('sent_id', location='args')
         parser.add_argument('customer_id', location='args')
@@ -69,6 +75,9 @@ class TrackClick(Resource):
             QRY = marshal(qry, Track.response_fields) 
             return QRY, 200
         return {'status': 'NOT_FOUND'}, 404
+    
+    def options(self):
+        return {}, 200
 
 api.add_resource(TrackList, '', '<id>')
 api.add_resource(TrackOpen, '/open', '<id>')

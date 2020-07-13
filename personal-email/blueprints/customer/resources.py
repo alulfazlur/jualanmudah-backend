@@ -55,6 +55,9 @@ class CustomerResource(Resource):
         #     return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
 
 class ListCustomer(Resource):
 
@@ -77,6 +80,9 @@ class ListCustomer(Resource):
             rows.append(marshalcustomer)
         return rows, 200
         # return {'status': 'NOT_FOUND'}, 404
+
+    def options(self):
+        return {}, 200
 
 class LeaderCustomer(Resource):
 
@@ -126,6 +132,9 @@ class LeaderCustomer(Resource):
         app.logger.debug('DEBUG: %s', customer)
 
         return marshal(customer, Customer.response_fields), 200, {'Content-Type': 'application/json'}
+    
+    def options(self):
+        return {}, 200
 
 api.add_resource(CustomerResource, '', '/<id>')
 api.add_resource(ListCustomer, '/list', '/<id>')

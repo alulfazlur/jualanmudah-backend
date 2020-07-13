@@ -49,6 +49,8 @@ class UserLeaderListStaff(Resource):
         db.session.delete(qry)
         db.session.commit()
 
+    def options(self):
+        return {}, 200
 
 class SentLeader(Resource):
 
@@ -87,6 +89,9 @@ class SentLeader(Resource):
             return {'status': 'NOT_FOUND'}, 404
         db.session.delete(qry)
         db.session.commit()
+    
+    def options(self):
+        return {}, 200
     
 # class QueryStaff(Resource):
 #     # get all list customer from staff
