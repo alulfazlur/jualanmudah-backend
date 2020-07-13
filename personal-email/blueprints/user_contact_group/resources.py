@@ -97,6 +97,9 @@ class ListContactGroup(Resource):
             rows.append(contact_user) 
         marshalgroup['contact'] = rows
         return marshalgroup, 200
+    
+    def options(self):
+        return {}, 200
 
 api.add_resource(UserContactGroupResource, '', '/<id>')
 api.add_resource(ListContactGroup, '/list', '/<id>')

@@ -114,6 +114,9 @@ class ListUserContact(Resource):
             rows.append(user_contact_list) 
         return rows, 200
 
+    def options(self):
+        return {}, 200
+
 class UserContactLeader(Resource):
 
     # get all list user contact by user_id for leader
@@ -141,6 +144,9 @@ class UserContactLeader(Resource):
             user_contact_list['user_contact_group'] = marshalgroup
             rows.append(user_contact_list) 
         return rows, 200
+    
+    def options(self):
+        return {}, 200
 
 api.add_resource(UserContactResource, '', '/<id>')
 api.add_resource(ListUserContact, '/list', '/<id>')
