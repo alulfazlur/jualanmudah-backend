@@ -162,7 +162,7 @@ class SentResource(Resource):
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
                 content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
                 str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
-                str(marshalcustomer['First_name']) +"</b></p>", marshaluserMail['password'])
+                str(marshaluser['full_name']) +"</b></p>", marshaluserMail['password'])
                 track = Track(qry.id, member.customer_id, "", "")
                 db.session.add(track)
                 db.session.commit()
@@ -292,7 +292,7 @@ class SendMailDirect(Resource):
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
             content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
             str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
-            str(marshalcustomer['First_name']) +"</b></p>", marshaluserMail['password'])
+            str(marshaluser['full_name']) +"</b></p>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
             db.session.commit()

@@ -139,7 +139,7 @@ class LeaderCustomer(Resource):
         db.session.commit()
         app.logger.debug('DEBUG: %s', customer)
 
-        return marshal(customer, Customer.response_fields), 200, {'Content-Type': 'application/json'}
+        return marshal(customer, Customer.response_fields), 200
     
     def options(self):
         return {}, 200

@@ -139,5 +139,8 @@ app.register_blueprint(bp_track, url_prefix='/track')
 from blueprints.admin.resources import bp_admin
 app.register_blueprint(bp_admin, url_prefix='/admin')
 
+from blueprints.sent_whatsapp.resources import bp_sent_WA
+app.register_blueprint(bp_sent_WA, url_prefix='/wa')
+
 
 db.create_all()
