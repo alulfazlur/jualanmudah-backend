@@ -117,6 +117,40 @@ class ListUserContact(Resource):
     def options(self):
         return {}, 200
 
+class ListUserContactById(Resource):
+
+    # get all list user contact
+    @staff_required
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('contact_group_id', location='args')
+        parser.add_argument('p', type=int, location='args', default=1)
+        parser.add_argument('rp', type=int, location='args', default=25)
+
+        args = parser.parse_args()
+        offset = (args['p']*args['rp']-args['rp'])
+
+        claims = get_jwt_claims()
+        qry_user_contact = UserContact.query.filter_by(user_id=claims['id'])
+        qry_user_contact = qry_user_contact.filter_by(contact_group_id=args['contact_group_id'])
+        # if qry_user_contact is None:
+        #     return {'status': 'NOT_FOUND'}, 404
+
+        rows = []
+        for row in qry_user_contact.limit(args['rp']).offset(offset).all():
+            user = User.query.filter_by(id=row.user_id).first()
+            marshaluser = marshal(user, User.response_fields)
+            user_group = UserContactGroup.query.filter_by(id=row.contact_group_id).first()
+            marshalgroup = marshal(user_group, UserContactGroup.response_fields)
+            user_contact_list = (marshal(row, UserContact.response_fields))
+            user_contact_list['user'] = marshaluser
+            user_contact_list['user_contact_group'] = marshalgroup
+            rows.append(user_contact_list) 
+        return rows, 200
+
+    def options(self):
+        return {}, 200
+
 class UserContactLeader(Resource):
 
     # get all list user contact by user_id for leader
@@ -150,4 +184,5 @@ class UserContactLeader(Resource):
 
 api.add_resource(UserContactResource, '', '/<id>')
 api.add_resource(ListUserContact, '/list', '/<id>')
+api.add_resource(ListUserContactById, '/list-by-id', '/<id>')
 api.add_resource(UserContactLeader, '/leader', '/<id>')
