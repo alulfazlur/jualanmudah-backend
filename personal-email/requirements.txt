@@ -14,3 +14,4 @@ mailjet-rest
 pyrebase
 flask-mail
 xlrd
+quickemailverification
