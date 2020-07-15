@@ -150,8 +150,8 @@ class SentResource(Resource):
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            linked = "<a href=" + "perintiscerita.shop/red/" + str(qry.id) + "-"
-            str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(qry.id)
+            linked = "<a href=" + "jualanmudah.com/red/" + str(qry.id) + "-"
+            str_get = "<img style='display: none'; src=https://be.jualanmudah.com/track/open?sent_id=" + str(qry.id)
             content = args['content'] + str_get
             for member in qry_sent_member:
                 customer = Customer.query.filter_by(user_id=claims['id'])
