@@ -51,7 +51,7 @@ class TestSentResource():
     
     def test_delete_sent_staff_none(self, client, init_database):
         token = create_token_staff()
-        res = client.delete('/sent/10',
+        res = client.delete('/sent/9999999',
                         headers={'Authorization': 'Bearer '+ token},
                         content_type='application/json')
         # res_json = json.loads(res.data)

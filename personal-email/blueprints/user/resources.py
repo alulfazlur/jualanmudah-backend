@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from .model import User
 from blueprints import db, app, leader_required, staff_required
-from blueprints.firebase.upload import UploadToFirebase 
+from firebase.upload import UploadToFirebase 
 from sqlalchemy import desc
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 import uuid
