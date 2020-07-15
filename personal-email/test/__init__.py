@@ -59,9 +59,9 @@ def init_database():
     db.session.add(user_contact)
     db.session.commit()
     
-    customer = Customer(First_name="Derby",last_name="Prayogo", email="derby@alterra.id",phone="08934551",bod="1997-06-01",address="sby",gender="male",company="alta",user_id=2)
+    customer = Customer(First_name="Derby",last_name="Prayogo", email="derby@alterra.id",phone="08934551",bod="1997-06-01",address="sby",gender="male",company="alta",user_id=2,validation="true")
     db.session.add(customer)
-    customer = Customer(First_name="ajay",last_name="klaten", email="ajay@alterra.id",phone="0893455134",bod="1997-06-02",address="ML",gender="male",company="astra",user_id=2)
+    customer = Customer(First_name="ajay",last_name="klaten", email="ajay@alterra.id",phone="0893455134",bod="1997-06-02",address="ML",gender="male",company="astra",user_id=2,validation="true")
     db.session.add(customer)
     db.session.commit()
     
@@ -75,7 +75,7 @@ def init_database():
     db.session.add(customer_member)
     db.session.commit()
 
-    sent = Sent(user_id =3,send_date="",status="",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1)
+    sent = Sent(user_id =3,send_date="",status="",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
     db.session.add(sent)
     db.session.commit()
 
