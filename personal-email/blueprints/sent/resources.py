@@ -150,7 +150,7 @@ class SentResource(Resource):
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
-            linked = "<a href=" + str(args['link']) + " ping=https://slytherin.perintiscerita.shop/track/click?sent_id=" + str(qry.id)
+            linked = "<a href=" + "perintiscerita.shop/red/" + str(qry.id) + "-"
             str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(qry.id)
             content = args['content'] + str_get
             for member in qry_sent_member:
@@ -160,8 +160,8 @@ class SentResource(Resource):
                 name_customer = "<p><b>Dear " + marshalcustomer['First_name'] + "</b></p>"
                 result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
                 marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
-                content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
-                str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
+                content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + str(marshalcustomer['id']) 
+                + "-" + str(args['link'])+ ">" + args['words'] + "</a>" + "<br/>" + "<p><b>Best regards<br><br>" + 
                 str(marshaluser['full_name']) +"</b></p>", marshaluserMail['password'])
                 track = Track(qry.id, member.customer_id, "", "")
                 db.session.add(track)
@@ -280,7 +280,7 @@ class SendMailDirect(Resource):
             sent.send_date = str(datetime.datetime.now())
             db.session.commit()
             pass
-        linked = "<a href=" + str(args['link']) + " ping=https://slytherin.perintiscerita.shop/track/click?sent_id=" + str(sent.id)
+        linked = "<a href=" + "perintiscerita.shop/red/" + str(sent.id) + "-"
         str_get = "<img style='display: none'; src=https://slytherin.perintiscerita.shop/track/open?sent_id=" + str(sent.id)
         content = args['content'] + str_get
         for member in qry_sent_member:
@@ -290,8 +290,8 @@ class SendMailDirect(Resource):
             name_customer = "<p><b>Dear " + marshalcustomer['First_name'] + "</b></p>"
             result = self.sendMessage(marshaluserMail['email_or_wa'], marshaluser['full_name'], 
             marshalcustomer['email'], marshalcustomer['First_name'], args['subject'], name_customer + 
-            content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + "&customer_id=" + 
-            str(marshalcustomer['id']) + ">" + args['words'] + "</a>" + "<br>" + "<p><b>Best regards<br><br>" + 
+            content + "&customer_id=" + str(marshalcustomer['id']) + "/>" + linked + str(marshalcustomer['id']) 
+            + "-" + str(args['link'])+ ">" + args['words'] + "</a>" + "<br/>" + "<p><b>Best regards<br><br>" + 
             str(marshaluser['full_name']) +"</b></p>", marshaluserMail['password'])
             track = Track(sent.id, member.customer_id, "", "")
             db.session.add(track)
@@ -400,7 +400,7 @@ class getSentById(Resource):
             customer = Customer.query.filter_by(id=track.customer_id).first()
             if track.status_open == "opened":
                 count_open_rate += 1
-            elif track.status_click == "clicked":
+            if track.status_click == "clicked":
                 count_click_rate += 1
             marshaltrack = marshal(track, Track.response_fields)
             marshalcustomer= marshal(customer, Customer.response_fields)
@@ -445,7 +445,7 @@ class getAllSent(Resource):
                     count_total += 1
                     if track.status_open == "opened":
                         count_open_rate += 1
-                    elif track.status_click == "clicked":
+                    if track.status_click == "clicked":
                         count_click_rate += 1
                     marshaltrack = marshal(track, Track.response_fields)
                     track_list.append(marshaltrack)
