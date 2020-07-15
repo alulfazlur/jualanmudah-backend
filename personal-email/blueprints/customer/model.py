@@ -22,6 +22,7 @@ class Customer(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=db.func.now())
     # customer_member = db.relationship('CustomerMember', backref='customer', lazy=True)
     customer_member = db.relationship('CustomerMember', cascade="all, delete-orphan", passive_deletes=True)
+    validation = db.Column(db.String(10))
 
     response_fields = {
         'id': fields.Integer,
@@ -36,10 +37,11 @@ class Customer(db.Model):
         'user_id': fields.Integer,
         'created_at': fields.DateTime,
         'updated_at': fields.DateTime,
-      
+        'validation': fields.String
+        
     }
 
-    def __init__(self, First_name, last_name, email, phone, bod, address, gender, company, user_id):
+    def __init__(self, First_name, last_name, email, phone, bod, address, gender, company, user_id, validation):
 
         self.First_name = First_name
         self.last_name = last_name
@@ -50,8 +52,7 @@ class Customer(db.Model):
         self.gender = gender
         self.company = company
         self.user_id = user_id
-        
-        
+        self.validation = validation
 
     def __repr__(self):
         return '<Customer %r>' % self.id
