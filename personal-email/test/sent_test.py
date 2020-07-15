@@ -82,14 +82,14 @@ class TestgetDraftById():
         res_json = json.loads(res.data)
         assert res.status_code == 200
     
-    def test_post_customer_leader(self, client, init_database):
-        token = create_token_leader()
-        res = client.post('/sent/leader',
-                        content_type='application/json',
-                        headers={'Authorization': 'Bearer '+ token},
-                        json={"First_name":"mas", "last_name": "prayogo","email":"derby@gmail.com","phone":"0895122332","bod":"2020-06-06","address":"malang","gender":"male","company":"alterra","user_id":3})
-        res_json = json.loads(res.data)
-        assert res.status_code == 200
+    # def test_post_customer_leader(self, client, init_database):
+    #     token = create_token_leader()
+    #     res = client.post('/sent/leader',
+    #                     content_type='application/json',
+    #                     headers={'Authorization': 'Bearer '+ token},
+    #                     json={"First_name":"mas", "last_name": "prayogo","email":"derby@gmail.com","phone":"0895122332","bod":"2020-06-06","address":"malang","gender":"male","company":"alterra","user_id":3})
+    #     res_json = json.loads(res.data)
+    #     assert res.status_code == 200
 
     
 
