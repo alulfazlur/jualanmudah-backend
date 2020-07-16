@@ -75,7 +75,10 @@ def init_database():
     db.session.add(customer_member)
     db.session.commit()
 
-    sent = Sent(user_id =3,send_date="",status="",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
+    sent = Sent(user_id =3,send_date="now",status="sent",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
+    db.session.add(sent)
+    db.session.commit()
+    sent = Sent(user_id =3,send_date="",status="draft",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
     db.session.add(sent)
     db.session.commit()
 

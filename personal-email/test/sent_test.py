@@ -15,12 +15,12 @@ class TestSentResource():
         assert res.status_code == 200
 
     # def test_sent_get_staff_none(self, client, init_database):
-    #     token =  create_token_staff()
-    #     res = client.get('/sent/5',
+    #     token =  create_token_helper()
+    #     res = client.get('/sent',
     #                     headers={'Authorization': 'Bearer '+ token},
     #                     content_type='application/json')
     #     res_json = json.loads(res.data)
-        # assert res.status_code == 404
+    #     assert res.status_code == 404
 
 
     def test_post_sent_staff(self, client, init_database):
@@ -28,16 +28,35 @@ class TestSentResource():
         res = client.post('/sent',
                         content_type='application/json',
                         headers={'Authorization': 'Bearer '+ token},
-                        json={"status":"", "send_date": "now","subject":"mock","content":"2020-06-06","device":"email","contact_id":2,"group_id":1})
+                        data=json.dumps({"status":"draft", "send_date": "now","subject":"mock","content":"2020-06-06","device":"email","contact_id":2,"group_id":1}))
         res_json = json.loads(res.data)
         assert res.status_code == 200
 
+    def test_patch_sent_staff_error(self, client, init_database):
+        token = create_token_staff()
+        res = client.patch('/sent',
+                        content_type='application/json',
+                        headers={'Authorization': 'Bearer '+ token},
+                        data=json.dumps({"status":"sent", "send_date": "now","sent_id":10,"subject":"mock","content":"<p>a</p>","device":"email","contact_id":1,"group_id":2,"words":"",
+                        "link":""}))
+        res_json = json.loads(res.data)
+        assert res.status_code == 404
+    
     def test_patch_sent_staff(self, client, init_database):
         token = create_token_staff()
         res = client.patch('/sent',
                         content_type='application/json',
                         headers={'Authorization': 'Bearer '+ token},
-                        json={"status":"opened", "send_date": "now","send_id":1,"subject":"mock","content":"2020-06-06","device":"email","contact_id":1,"group_id":1})
+                        data=json.dumps({"status":"sent",
+                        "send_date": "now",
+                        "sent_id":2,
+                        "subject":"mock",
+                        "content":"<p>a</p>",
+                        "device":"email",
+                        "contact_id":1,
+                        "group_id":1,
+                        "words":"link",
+                        "link":"youtube.com"}))
         res_json = json.loads(res.data)
         assert res.status_code == 200
 
@@ -62,34 +81,42 @@ class TestSentResource():
 
 # class TestSendMailDirect():
 
-#     def test_sent_post_leader(self, client, init_database):
-#         token =  create_token_staff()
+#     def test_post_direct_sent_staff(self, client, init_database):
+#         token = create_token_staff()
 #         res = client.post('/sent/direct',
 #                         content_type='application/json',
-#                         headers={'Authorization': 'Bearer '+ token},
-#                         json={"status":"", "send_date": "now","subject":"mock","content":"2020-06-06","device":"email","contact_id":1,"group_id":1})
+#                         json={"status":"", "send_date": "now","subject":"mock","content":"2020-06-06","device":"email","contact_id":1,"group_id":1,"words":"klik aja","link":"youtube.com"},
+#                         headers={'Authorization': 'Bearer '+ token})
 #         res_json = json.loads(res.data)
 #         assert res.status_code == 200
     
-class TestgetDraftById():
+# class TestgetDraftById():
 
-    def test_sent_get_staff(self, client, init_database):
-        token =  create_token_staff()
-        res = client.get('/sent/draft',
-                        headers={'Authorization': 'Bearer '+ token},
-                        content_type='application/json',
-                        query_string=1)
-        res_json = json.loads(res.data)
-        assert res.status_code == 200
+#     def test_sent_get_draft(self, client, init_database):
+#         token =  create_token_staff()
+#         res = client.get('/sent/draft',
+#                         headers={'Authorization': 'Bearer '+ token},
+#                         content_type='application/json',
+#                         query_string={"draft_id":2})
+#         res_json = json.loads(res.data)
+#         assert res.status_code == 200
     
-    # def test_post_customer_leader(self, client, init_database):
-    #     token = create_token_leader()
-    #     res = client.post('/sent/leader',
-    #                     content_type='application/json',
-    #                     headers={'Authorization': 'Bearer '+ token},
-    #                     json={"First_name":"mas", "last_name": "prayogo","email":"derby@gmail.com","phone":"0895122332","bod":"2020-06-06","address":"malang","gender":"male","company":"alterra","user_id":3})
-    #     res_json = json.loads(res.data)
-    #     assert res.status_code == 200
+# class TestGetAllDraft():
+#     def test_sent_get_all_draft(self, client, init_database):
+#         token =  create_token_staff()
+#         res = client.get('/sent/draft-list',
+#                         headers={'Authorization': 'Bearer '+ token},
+#                         content_type='application/json')
+#         res_json = json.loads(res.data)
+#         assert res.status_code == 200  
 
+# class TestGetAllSent():
+#     def test_sent_get_all_sent(self, client, init_database):
+#         token =  create_token_staff()
+#         res = client.get('/sent/sent-list',
+#                         headers={'Authorization': 'Bearer '+ token},
+#                         content_type='application/json')
+#         res_json = json.loads(res.data)
+#         assert res.status_code == 200 
     
 

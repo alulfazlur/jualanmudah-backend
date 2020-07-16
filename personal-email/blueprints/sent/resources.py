@@ -99,8 +99,6 @@ class SentResource(Resource):
         else:
             if args['sent_id'] is not None:
                 qry.sent_id = args['sent_id']
-            if claims['id'] is not None:
-                qry.user_id = claims['id']
             if args['status'] is not None:
                 qry.status = args['status']
             if args['send_date'] is not None:
@@ -136,17 +134,7 @@ class SentResource(Resource):
             qry_sent_member = CustomerMember.query.filter_by(group_id=qry.group_id)
 
             # send an email from flask mail 
-            if len(args['send_date'])>5:
-                senddate = args['send_date'].split(',')
-                year = int(senddate[0])
-                month = int(senddate[1])
-                day = int(senddate[2])
-                hour = int(senddate[3])
-                mins = int(senddate[4])
-                sec = int(senddate[5])
-                sent_time = datetime.datetime(year,month,day,hour,mins,sec)
-                time.sleep(sent_time.timestamp()- time.time())
-            elif args['send_date'] == "now":
+            if args['send_date'] == "now":
                 qry_sent.send_date = str(datetime.datetime.now())
                 db.session.commit()
                 pass
