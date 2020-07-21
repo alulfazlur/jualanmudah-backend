@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage report</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-throttle-debounce.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.index_ready);
+    </script>
+</head>
+<body class="indexfile">
+<div id="header">
+    <div class="content">
+        <h1>Coverage report:
+            <span class="pc_cov">81%</span>
+        </h1>
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+        <form id="filter_container">
+            <input id="filter" type="text" value="" placeholder="filter..." />
+        </form>
+    </div>
+</div>
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">n</span>
+        <span class="key">s</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        <span class="key">c</span> &nbsp; change column sorting
+    </p>
+    </div>
+</div>
+<div id="index">
+    <table class="index">
+        <thead>
+            <tr class="tablehead" title="Click to sort">
+                <th class="name left headerSortDown shortkey_n">Module</th>
+                <th class="shortkey_s">statements</th>
+                <th class="shortkey_m">missing</th>
+                <th class="shortkey_x">excluded</th>
+                <th class="right shortkey_c">coverage</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr class="total">
+                <td class="name left">Total</td>
+                <td>1299</td>
+                <td>249</td>
+                <td>0</td>
+                <td class="right" data-ratio="1050 1299">81%</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr class="file">
+                <td class="name left"><a href="blueprints___init___py.html">blueprints/__init__.py</a></td>
+                <td>83</td>
+                <td>12</td>
+                <td>0</td>
+                <td class="right" data-ratio="71 83">86%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_auth___init___py.html">blueprints/auth/__init__.py</a></td>
+                <td>37</td>
+                <td>9</td>
+                <td>0</td>
+                <td class="right" data-ratio="28 37">76%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_model_py.html">blueprints/customer/model.py</a></td>
+                <td>36</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="36 36">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_resources_py.html">blueprints/customer/resources.py</a></td>
+                <td>103</td>
+                <td>3</td>
+                <td>0</td>
+                <td class="right" data-ratio="100 103">97%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_group_model_py.html">blueprints/customer_group/model.py</a></td>
+                <td>22</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="22 22">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_group_resources_py.html">blueprints/customer_group/resources.py</a></td>
+                <td>56</td>
+                <td>9</td>
+                <td>0</td>
+                <td class="right" data-ratio="47 56">84%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_member_model_py.html">blueprints/customer_member/model.py</a></td>
+                <td>20</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="20 20">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_customer_member_resources_py.html">blueprints/customer_member/resources.py</a></td>
+                <td>74</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="72 74">97%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_sent_model_py.html">blueprints/sent/model.py</a></td>
+                <td>40</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="40 40">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_sent_resources_py.html">blueprints/sent/resources.py</a></td>
+                <td>365</td>
+                <td>167</td>
+                <td>0</td>
+                <td class="right" data-ratio="198 365">54%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_tracking_model_py.html">blueprints/tracking/model.py</a></td>
+                <td>21</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="right" data-ratio="20 21">95%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_tracking_resources_py.html">blueprints/tracking/resources.py</a></td>
+                <td>69</td>
+                <td>14</td>
+                <td>0</td>
+                <td class="right" data-ratio="55 69">80%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_model_py.html">blueprints/user/model.py</a></td>
+                <td>34</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="34 34">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_resources_py.html">blueprints/user/resources.py</a></td>
+                <td>119</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="115 119">97%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_contact_model_py.html">blueprints/user_contact/model.py</a></td>
+                <td>21</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="21 21">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_contact_resources_py.html">blueprints/user_contact/resources.py</a></td>
+                <td>120</td>
+                <td>24</td>
+                <td>0</td>
+                <td class="right" data-ratio="96 120">80%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_contact_group_model_py.html">blueprints/user_contact_group/model.py</a></td>
+                <td>16</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="16 16">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="blueprints_user_contact_group_resources_py.html">blueprints/user_contact_group/resources.py</a></td>
+                <td>63</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="59 63">94%</td>
+            </tr>
+        </tbody>
+    </table>
+    <p id="no_rows">
+        No items found using the specified filter.
+    </p>
+</div>
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.1</a>,
+            created at 2020-07-21 11:56
+        </p>
+    </div>
+</div>
+</body>
+</html>
