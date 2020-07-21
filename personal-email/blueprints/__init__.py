@@ -131,14 +131,14 @@ from blueprints.customer_group.resources import bp_customer_group
 app.register_blueprint(bp_customer_group, url_prefix='/customer-group')
 
 from blueprints.sent.resources import bp_sent
-app.register_blueprint(bp_sent, url_prefix='/sent' )
+app.register_blueprint(bp_sent, url_prefix='/sent')
 
 from blueprints.tracking.resources import bp_track
 app.register_blueprint(bp_track, url_prefix='/track')
 
 
-from blueprints.sent_whatsapp.resources import bp_sent_WA
-app.register_blueprint(bp_sent_WA, url_prefix='/wa')
+# from blueprints.sent_whatsapp.resources import bp_sent_WA
+# app.register_blueprint(bp_sent_WA, url_prefix='/wa')
 
 
 db.create_all()

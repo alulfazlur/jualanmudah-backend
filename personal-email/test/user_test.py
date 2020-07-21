@@ -12,7 +12,7 @@ class TestUserStaff():
         assert res.status_code == 200
     def test_post_staff(self, client, init_database):
         token = create_token_leader()
-        with open('/home/alta1/Downloads/kementan.png', 'rb') as img1:
+        with open('/home/alta12/Downloads/kementan.png', 'rb') as img1:
             imgStringIO1 = BytesIO(img1.read())
         res = client.post('/user',
                         content_type='multipart/form-data',
@@ -33,7 +33,7 @@ class TestUserStaff():
 
     def test_patch_staff(self, client, init_database):
         token = create_token_leader()
-        with open('/home/alta1/Downloads/kementan.png', 'rb') as img1:
+        with open('/home/alta12/Downloads/kementan.png', 'rb') as img1:
             imgStringIO1 = BytesIO(img1.read())
         res = client.patch('/user/3',
                         content_type='multipart/form-data',
@@ -54,7 +54,7 @@ class TestUserStaff():
 class TestLeaderStaff():
     def test_post_leader(self, client, init_database):
        
-        with open('/home/alta1/Downloads/kementan.png', 'rb') as img1:
+        with open('/home/alta12/Downloads/kementan.png', 'rb') as img1:
             imgStringIO1 = BytesIO(img1.read())
         res = client.post('/user/leader',
                         content_type='multipart/form-data',

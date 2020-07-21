@@ -32,20 +32,27 @@ def init_database():
     salt = uuid.uuid4().hex
     encoded = ('%s%s' %("admin", salt)).encode('utf-8')
     hashpass = hashlib.sha512(encoded).hexdigest()
+
     encoded2 = ('%s%s' %("leader", salt)).encode('utf-8')  
     hashpass2 = hashlib.sha512(encoded2).hexdigest()
+
     encoded3 = ('%s%s' %("staff", salt)).encode('utf-8') 
     hashpass3 = hashlib.sha512(encoded3).hexdigest()
+
     encoded4 = ('%s%s' %("helper", salt)).encode('utf-8') 
     hashpass4 = hashlib.sha512(encoded3).hexdigest()
+
     user_admin = User(full_name= "bapa admin",username='admin', password=hashpass, salt=salt, status="admin", address="malang", position="admin", user_image="awesome",leader_id=None)
     user_leader = User(full_name="bapa leader",username='leader', password=hashpass2, salt=salt, status="leader", address="malang", position="manager", user_image="awesome",leader_id=None)
     user_staff = User(full_name="bapa staff",username='staff', password=hashpass3, salt=salt, status="staff", address="malang", position="staff", user_image="awesome",leader_id=2)
     user_helper = User(full_name="bapa helper",username='helper', password=hashpass4, salt=salt, status="helper", address="malang", position="helper", user_image="awesome",leader_id=2)        
         
     db.session.add(user_admin)
+    db.session.commit()
     db.session.add(user_leader)
+    db.session.commit()
     db.session.add(user_staff)
+    db.session.commit()
     db.session.add(user_helper)
     db.session.commit()
     
@@ -53,33 +60,52 @@ def init_database():
     db.session.add(user_contact_group)
     db.session.commit()
 
-    user_contact = UserContact(user_id=2, contact_group_id=1, email_or_wa="romli@alterra.id",password="alta123")
+    user_contact = UserContact(user_id=2, contact_group_id=1, email_or_wa="pamungkas.syahrizal@gmail.com",password="haraokimeru1")
     db.session.add(user_contact)
-    user_contact = UserContact(user_id=3, contact_group_id=1, email_or_wa="derby@alterra.id",password="alta123")
+    db.session.commit()
+    user_contact = UserContact(user_id=3, contact_group_id=1, email_or_wa="project.isekaiyu@gmail.com", password="haraokimeru1")
     db.session.add(user_contact)
     db.session.commit()
     
-    customer = Customer(First_name="Derby",last_name="Prayogo", email="derby@alterra.id",phone="08934551",bod="1997-06-01",address="sby",gender="male",company="alta",user_id=2,validation="true")
+    customer = Customer(First_name="Derby",last_name="Prayogo", email="derby@alterra.id",phone="08934551",bod="1997-06-01",address="sby",gender="male",company="alta",user_id=3,validation="valid")
     db.session.add(customer)
-    customer = Customer(First_name="ajay",last_name="klaten", email="ajay@alterra.id",phone="0893455134",bod="1997-06-02",address="ML",gender="male",company="astra",user_id=2,validation="true")
+    db.session.commit()
+    customer = Customer(First_name="ajay",last_name="klaten", email="ajay@alterra.id",phone="0893455134",bod="1997-06-02",address="ML",gender="male",company="astra",user_id=2,validation="valid")
     db.session.add(customer)
     db.session.commit()
     
     customer_group = CustomerGroup(name="manager",status=True,user_id=2)
     db.session.add(customer_group)
+    db.session.commit()
     customer_group = CustomerGroup(name="staff",status=True,user_id=3)
     db.session.add(customer_group)
     db.session.commit()
     
-    customer_member = CustomerMember(customer_id=1,group_id=1,)
+    customer_member = CustomerMember(customer_id=1,group_id=1)
+    db.session.add(customer_member)
+    db.session.commit()
+    customer_member = CustomerMember(customer_id=1,group_id=2)
     db.session.add(customer_member)
     db.session.commit()
 
-    sent = Sent(user_id =3,send_date="",status="",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=1,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
+    sent = Sent(user_id =3,send_date="",status="draft",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=2,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
     db.session.add(sent)
     db.session.commit()
 
+    sent = Sent(user_id =3,send_date="",status="sent",subject="warming up", content= "bagi-bagi uang",device="email",contact_id=1, group_id=2,open_rate=1,click_rate=1,total_sent=1,words="klik disini",link="youtube.com")
+    db.session.add(sent)
+    db.session.commit()
+
+    track = Track(sent_id =2, customer_id=1,status_open="opened",status_click="clicked")
+    db.session.add(sent)
+    db.session.commit()
+    track = Track(sent_id =2, customer_id=2,status_open="opened",status_click="clicked")
+    db.session.add(sent)
+    db.session.commit()
     track = Track(sent_id =1, customer_id=1,status_open="opened",status_click="clicked")
+    db.session.add(sent)
+    db.session.commit()
+    track = Track(sent_id =1, customer_id=2,status_open="opened",status_click="clicked")
     db.session.add(sent)
     db.session.commit()
 
