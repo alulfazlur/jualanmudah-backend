@@ -8,25 +8,38 @@ from blueprints.user_contact_group.model import UserContactGroup
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt_claims, jwt_required
 
 
-
 bp_customer_group = Blueprint('customer_group', __name__)
 api = Api(bp_customer_group)
 
-# using flask restful
-
 class CustomerGroupResource(Resource):
 
-    # get customer group by id
     @staff_required
     def get(self, id=None):
-        qry = CustomerGroup.query.get(id)
-        # if qry is not None:
-        return marshal(qry, CustomerGroup.response_fields), 200
-        # return {'status': 'NOT_FOUND'}, 404
+        """Gets a customer group by id
 
-    # post customer group
+        Args:
+            id (int): The id of the customer group
+
+        Returns:
+            json: A dictionary of customer group
+        """
+        qry = CustomerGroup.query.get(id)
+        if qry is not None:
+            return marshal(qry, CustomerGroup.response_fields), 200
+        return {'status': 'NOT_FOUND'}, 404
+
     @staff_required
     def post(self):
+        """Posts a customer group
+
+        Args:
+            name (str): The name of customer group
+            status (bool): A status existed
+                (default is True)
+
+        Returns:
+            json: A dictionary of customer group
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('name', location='json')
         parser.add_argument('status', location='json')
@@ -41,9 +54,16 @@ class CustomerGroupResource(Resource):
 
         return marshal(customer_group, CustomerGroup.response_fields), 200, {'Content-Type': 'application/json'}
 
-    # delete customer group
     @staff_required
     def patch(self, id):
+        """Soft deletes a customer group
+
+        Args:
+            id (int): The id of the customer group
+
+        Returns:
+            json: A dictionary of customer group with status false
+        """
         qry = CustomerGroup.query.get(id)
         qry.status = False
         if qry is None:
@@ -56,9 +76,19 @@ class CustomerGroupResource(Resource):
 
 class ListCustomerGroup(Resource):
 
-    # get call list customer group
     @staff_required
     def get(self, id=None):
+        """Gets a list of customer group
+
+        Args:
+            p (int): The sum of page
+                (default is 1)
+            rp (int): The sum of customer group in list in one page
+                (default is 25)
+
+        Returns:
+            list: a list of json representing the customer group
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('p', type=int, location='args', default=1)
         parser.add_argument('rp', type=int, location='args', default=25)
@@ -68,6 +98,7 @@ class ListCustomerGroup(Resource):
         offset = (args['p']*args['rp']-args['rp'])
 
         qry = CustomerGroup.query.filter_by(user_id=claims['id'])
+        qry = qry.filter_by(status=True)
 
         if qry.first() is None:
             return {'status': 'NOT_FOUND'}, 404
